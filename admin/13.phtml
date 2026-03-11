@@ -1,0 +1,295 @@
+<?php
+if(isset($_GET['action']) && strlen($_GET['action'])>0 && isset($_GET['id']) && $_GET['id']>0){
+	$sort_id = mysql_result(mysql_query("SELECT sort_id FROM ".MySQLprefix."_categories WHERE id=".$_GET['id']), 0);
+	if($_GET['action']=='up')
+		$up_ = mysql_query("SELECT sort_id, id FROM ".MySQLprefix."_categories WHERE sort_id<".$sort_id." AND p_id=".$_GET['p_id']." ORDER BY sort_id DESC LIMIT 0, 1");
+	else
+		$up_ = mysql_query("SELECT sort_id, id FROM ".MySQLprefix."_categories WHERE sort_id>".$sort_id." AND p_id=".$_GET['p_id']." ORDER BY sort_id ASC LIMIT 0, 1");
+	if($up_)
+		if(mysql_num_rows($up_)==1){
+			$up = mysql_fetch_assoc($up_);
+			$r = mysql_query("UPDATE ".MySQLprefix."_categories SET sort_id=".$up['sort_id']." WHERE id=".$_GET['id']);
+			$r = mysql_query("UPDATE ".MySQLprefix."_categories SET sort_id=".$sort_id." WHERE id=".$up['id']);
+		}
+}
+if($_GET['ph_del_n'] && $_GET['ph_del_n'] > 0){
+	$files_where = explode('|',mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_categories WHERE id=".$_GET['id']), 0));
+	$new_linn = '';
+	if(count($files_where)>0){
+		for ($fw=0;$fw<count($files_where);$fw++)
+			if($_GET['ph_del_n']-1!=$fw)
+				$new_linn .= $files_where[$fw].'|';
+		if(strlen($new_linn)>0)
+			$new_linn = substr($new_linn,0, strlen($new_linn)-1);
+		$result = mysql_query("UPDATE ".MySQLprefix."_categories SET logo='".$new_linn."' WHERE id=".$_GET['id']);
+	}
+	?>
+	<script type="text/javascript">
+		<!--
+		$(document).ready(function(){
+			document.location.href = document.location.href.split('&ph_del_n')[0];
+		});
+		//-->
+	</script>
+	<?php
+}
+if($_GET['del2'] == 1){
+	$logo = mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_categories WHERE id=".$_GET['id']),0);
+	if(strlen($logo)>0)
+		unlink('../'.$logo);
+	$result = mysql_query("DELETE FROM ".MySQLprefix."_categories WHERE id=".$_GET['id']);
+	$result = mysql_query("DELETE FROM ".MySQLprefix."_urls WHERE target_type='categories' AND target_id='".$_GET['id']."'");
+}
+if(strlen($_POST['nname'])>0){
+	if($_POST['shows']!=1)
+		$_POST['shows'] = 0;
+	$linnnn = '';
+	for ($nf=0;$nf<count($_FILES["npic"]["tmp_name"]);$nf++){
+		$ran = round(rand(1000000000, 9999999999), 0);
+		$n_type = substr($_FILES["npic"]["name"][$nf], strrpos($_FILES["npic"]["name"][$nf], '.'), strlen($_FILES["npic"]["name"][$nf])-strrpos($_FILES["npic"]["name"][$nf], '.'));
+		if(move_uploaded_file($_FILES["npic"]["tmp_name"][$nf], "uploads/".$ran.$n_type))
+			$linnnn .= "admin/uploads/".$ran.$n_type."|";
+	}
+	if(strlen($linnnn)>0)
+		$linnnn = substr($linnnn,0, strlen($linnnn)-1);
+	if($_POST['todo'] == 1){
+		$files_where = mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_categories WHERE id=".$_POST['nid']),0);
+		if(strlen($files_where)>0 && strlen($linnnn)>0)
+			$linnnn = $files_where."|".$linnnn;
+		elseif(strlen($files_where)==0 && strlen($linnnn)>0)
+			$linnnn = $linnnn;
+		else
+			$linnnn = $files_where;
+		$result = mysql_query("UPDATE ".MySQLprefix."_categories SET shows=".$_POST['shows'].", logo='".$linnnn."', text='".$_POST['editor2']."', p_id=".$_POST['nparent'].", name='".$_POST['nname']."', title='".$_POST['ntitle']."', description='".$_POST['ndescription']."', keywords='".$_POST['nkeywords']."', h1='".$_POST['nh1']."' WHERE id=".$_POST['nid']);
+		$result = mysql_query("UPDATE ".MySQLprefix."_urls SET url='".$_POST['nurl']."' WHERE target_id=".$_POST['nid']." AND target_type='categories'");
+	}else{
+		$result = mysql_query("INSERT INTO ".MySQLprefix."_categories (p_id, logo, name, title, description, keywords, h1, shows, text) VALUES (".$_POST['nparent'].", '".$linnnn."', '".$_POST['nname']."', '".$_POST['ntitle']."', '".$_POST['ndescription']."', '".$_POST['nkeywords']."', '".$_POST['nh1']."', '".$_POST['shows']."', '".$_POST['editor2']."')");
+		$result = mysql_query("UPDATE ".MySQLprefix."_categories SET sort_id=id WHERE sort_id=0");
+		$last_id = mysql_result(mysql_query("SELECT id FROM ".MySQLprefix."_categories ORDER BY id DESC LIMIT 0, 1"), 0);
+		$result = mysql_query("INSERT INTO ".MySQLprefix."_urls (url, target_id, target_type) VALUES ('".$_POST['nurl']."', '".$last_id."', 'categories')");
+	}
+}
+$result = mysql_query("SELECT * FROM ".MySQLprefix."_categories ORDER BY p_id ASC, sort_id ASC");
+if ($result)
+	while ($row = mysql_fetch_assoc($result)) {
+		$treeid[] = $row["id"];
+		$treesid[] = $row["sort_id"];
+		$treename[] = $row["name"];
+		$treepid[] = $row["p_id"];
+		$treelevel[] = 0;
+	}
+$count = count($treeid);
+for ($i=0;$i<$count-1;$i++){
+	$g = $i;
+	for ($j=1;$j<$count;$j++){
+		if ($treepid[$j] == $treeid[$i]){
+			$jid = $treeid[$j];
+			$jsid = $treesid[$j];
+			$jpid = $treepid[$j];
+			$jname = $treename[$j];
+			$jlevel = $treelevel[$i]+1;
+			$k=$j;
+			while ($k>$g+1){
+				$treeid[$k] = $treeid[$k-1];
+				$treesid[$k] = $treesid[$k-1];
+				$treepid[$k] = $treepid[$k-1];
+				$treename[$k] = $treename[$k-1];
+				$treelevel[$k] = $treelevel[$k-1];
+				$k=$k-1;
+			}
+			$treeid[$g+1] = $jid;
+			$treesid[$g+1] = $jsid;
+			$treepid[$g+1] = $jpid;
+			$treename[$g+1] = $jname;
+			$treelevel[$g+1] = $jlevel;
+			$g++;
+		}
+	}
+}
+if ($_GET['add'] == 1 or $_GET['edit'] == 1){
+	?>
+<form action="cms.php?go=<?=$_GET['go']?>" method="post" name="page_form" enctype="multipart/form-data" class="save-form">
+	<?php
+	if ($_GET['edit'] == 1)
+		$row31 = mysql_fetch_assoc(mysql_query("SELECT ".MySQLprefix."_categories.*, ".MySQLprefix."_urls.url FROM ".MySQLprefix."_categories, ".MySQLprefix."_urls WHERE ".MySQLprefix."_categories.id='".$_GET['id']."' AND ".MySQLprefix."_urls.target_id=".MySQLprefix."_categories.id AND ".MySQLprefix."_urls.target_type='categories'"));
+	?>
+	<div style="width:100%;overflow:hidden">
+		<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Название:</label>
+		<div style="display:block;width:84%;float:right;text-align:left;">
+			<input type="text" name="nname" size="70" value='<?=$row31['name']?>' style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> <a class="dubl" style="color:blue;cursor:pointer;text-decoration:underline">Копировать в СЕО</a><!-- <input type="checkbox" value="1" name="shows" <?php if($_GET['add'] == 1 || ($row31['shows']==1 and $_GET['edit'] == 1)){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> показывать на сайте-->
+		</div>
+	</div><br/><br/>
+	<div style="width:100%;overflow:hidden">
+		<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Вложенность:</label>
+		<div style="display:block;width:84%;float:right;text-align:left">
+			<select name="nparent" style="border:1px solid #011393;border-radius:3px;padding:1px 5px">
+				<option value="0"<?=($_GET['add'] == 1 || ($row31["p_id"] == 0 && $_GET['edit'] == 1) ? ' selected' : '')?>>не выбран</option>
+				<?php
+				for($i=0;$i<count($treeid);$i++){
+					?>
+				<option value="<?=$treeid[$i]?>"<?=($row31["p_id"] == $treeid[$i] && $_GET['edit'] == 1 ? ' selected' : '')?>><?php for($m=0;$m<$treelevel[$i];$m++){ ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php } echo $treename[$i]; ?></option>
+					<?php
+				}
+				?>
+			</select>
+		</div>
+	</div><br/><br/>
+	<div style="width:100%;overflow:hidden">
+		<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">URL страницы:</label>
+		<div style="display:block;width:84%;float:right;text-align:left;">
+			<input type="text" name="nurl" size="70" value='<?=$row31['url']?>' style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> <a class="transform-title" style="color:blue;text-decoration:underline;cursor:pointer;">Сформировать из Title</a> | <a class="check-url" style="color:blue;text-decoration:underline;cursor:pointer;">Проверить уникальность</a><br/><i class="check-url-result" style="color:black;text-decoration:none;"></i>
+			<script type="text/javascript">
+				<!--
+				function translite(string){
+					var dictionary = {
+						"а":"a",	"А":"a",	"б":"b",	"Б":"b",	"в":"v",	"В":"v",	"г":"g",	"Г":"g",	"д":"d",
+						"Д":"d",	"е":"e",	"Е":"e",	"ё":"yo",	"Ё":"yo",	"ж":"gh",	"Ж":"gh",	"з":"z",	"З":"z",
+						"и":"i",	"И":"i",	"й":"j",	"Й":"j",	"к":"k",	"К":"k",	"л":"l",	"Л":"l",	"м":"m",
+						"М":"m",	"н":"n",	"Н":"n",	"о":"o",	"О":"o",	"п":"p",	"П":"p",	"р":"r",	"Р":"r",
+						"с":"s",	"С":"s",	"т":"t",	"Т":"t",	"у":"u",	"У":"u",	"ф":"f",	"Ф":"f",	"х":"h",
+						"Х":"h",	"ц":"c",	"Ц":"c",	"ч":"ch",	"Ч":"ch",	"ш":"sh",	"Ш":"sh",	"щ":"sh",	"Щ":"sh",
+						"ы":"i",	"Ы":"i",	"э":"e",	"Э":"e",	"ю":"u",	"Ю":"yu",	"я":"ya",	"Я":"ya",	"ь":"",
+						"Ь":"",		"ъ":"",		"Ъ":"",		'"':'',		"'":'',		'!':'',		"?":'',		' ':'-',	":":'',
+						",":'',		".":'',		";":'',		"&":'',		"«":'',		"»":'',		"²":'2'};
+					return string.replace(/[\s\S]/g, function(x){
+						if( dictionary.hasOwnProperty( x ) )
+							return dictionary[ x ];
+						return x;
+					});
+				}
+				$(document).ready(function(){
+					$(".dubl").click(function(){
+						$("textarea[name='ntitle']").val($("input[name='nname']").val());
+						$("textarea[name='ndescription']").val($("input[name='nname']").val());
+						$("textarea[name='nkeywords']").val($("input[name='nname']").val());
+						$("input[name='nh1']").val($("input[name='nname']").val());
+					});
+					$('.check-url').click(function(){
+						if($('input[name="nurl"]').val().length>0)
+							$.post('_check_url.php', {newurl: $('input[name="nurl"]').val()<?=($_GET['edit']==1 && $_GET['id']>0 ? ', edit: '.$_GET['id'] : '')?>}, function(data){
+								if(data=='0'){
+									$('input[name="nurl"]').css({'color':'#090'});
+									$('.check-url-result').html('адрес свободен');
+									$('input[name="update"]').show();
+								}else{
+									$('input[name="nurl"]').css({'color':'#900'});
+									$('.check-url-result').html('адрес занят !!!');
+									$('input[name="update"]').hide();
+								}
+							});
+					});
+					$('.save-form').submit(function(){
+						if($('input[name="nurl"]').val().length>0)
+							$.post('_check_url.php', {newurl: $('input[name="nurl"]').val()<?=($_GET['edit']==1 && $_GET['id']>0 ? ', edit: '.$_GET['id'] : '')?>}, function(data){
+								if(data != '0')
+									return false;
+							});
+						else
+							return false;
+					});
+					$('input[name="nurl"]').change(function(){
+						$('.check-url').click();
+					});
+					$('input[name="nurl"]').keyup(function(){
+						$('.check-url').click();
+					});
+					$('.transform-title').click(function(){
+						$('input[name="nurl"]').val(translite($('textarea[name="ntitle"]').val()));
+						$('.check-url').click();
+					});
+				});
+				//-->
+			</script>
+		</div>
+	</div><br/><hr/><br/>
+	<div style="width:100%;overflow:hidden">
+		<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">SEO Title:</label>
+		<div style="display:block;width:84%;float:right;text-align:left;">
+			<textarea cols="90" rows="2" name="ntitle" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=($_GET['edit'] == 1 ? $row31["title"] : '')?></textarea>
+		</div>
+	</div><br/><br/>
+	<div style="width:100%;overflow:hidden">
+		<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">SEO description:</label>
+		<div style="display:block;width:84%;float:right;text-align:left">
+			<textarea cols="90" rows="2" name="ndescription" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=($_GET['edit'] == 1 ? $row31["description"] : '')?></textarea>
+		</div>
+	</div><br/><br/>
+	<div style="width:100%;overflow:hidden">
+		<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">SEO keywords:</label>
+		<div style="display:block;width:84%;float:right;text-align:left">
+			<textarea cols="90" rows="2" name="nkeywords" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=($_GET['edit'] == 1 ? $row31["keywords"] : '')?></textarea>
+		</div>
+	</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Изображения:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<?php
+				if($_GET['edit'] == 1 && strlen($row31['logo'])>0){
+					$files_where = explode('|', $row31['logo']);
+					if(count($files_where)>0){
+						echo '<div style="width:100%;overflow:hidden;position:relative;">';
+						for ($fw=0;$fw<count($files_where);$fw++)
+							echo '<span style="display:block;width:150px;height:150px;overflow:hidden;float:left;border:1px solid grey;margin:1px;text-align:center;line-height:150px;position:relative;"><img src="../'.$files_where[$fw].'" style="border:0;max-height:100%;max-width:100%;vertical-align:middle;position:relative;" /><a href="cms.php?go='.$_GET['go'].'&edit=1&id='.$_GET['id'].'&ph_del_n='.($fw+1).'" style="display:block;width:16px;height:16px;position:absolute;right:0;top:0;background:url(img/b_drop.png);cursor:pointer;"></a></span>';
+						echo '</div>';
+					}
+				}
+				?>
+				<p class="piccs"></p>
+				<script type="text/javascript">
+					<!--
+					function addformpht(){
+						$(".piccs").append('<input type="file" name="npic[]" /><br />');
+					}
+					//-->
+				</script>
+				<a onclick="addformpht();" style="color:blue;font-weight:bold;cursor:pointer;">Добавить фото (+1)</a>
+			</div>
+		</div><br/><hr/><br/>
+	<div style="width:100%;overflow:hidden">
+		<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Заголовок H1:</label>
+		<div style="display:block;width:84%;float:right;text-align:left;">
+			<input type="text" size="120" name="nh1" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" value='<?=($_GET['edit'] == 1 ? $row31["h1"] : '')?>' />
+		</div>
+	</div><br/><br/>
+	<div style="width:100%;overflow:hidden">
+		<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Текст:</label>
+		<div style="display:block;width:84%;float:right;text-align:left;">
+			<textarea id="editor2" cols="80" rows="5" name="editor2"><?=$row31['text']?></textarea>
+			<script type="text/javascript">
+				<!--
+				var ckeditor2 = CKEDITOR.replace("editor2");
+				AjexFileManager.init({returnTo: "ckeditor", editor: ckeditor2, skin: "light"});
+				//-->
+			</script>
+		</div>
+	</div>
+	<input type="hidden" name="todo" value="<?=$_GET['edit']?>" />
+	<input type="hidden" name="nid" value="<?=($_GET['edit'] == 1 ? $_GET['id'] : '')?>" />
+	<input type="submit" name="update" value="Сохранить категорию" style="position:fixed;left:0;top:60%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer" />
+</form>
+<hr/>
+	<?php
+}else{
+	?>
+<a style="position:fixed;left:0;top:60%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" href='cms.php?go=<?=$_GET['go']?>&amp;add=1'>Добавить категорию</a>
+	<?php
+}
+echo '<ul style="width:90%;">';
+for($i=0;$i<count($treeid);$i++){
+	echo '<li><a title="вверх" style="text-decoration:none;color:blue;" class="moveit_l" href="cms.php?go='.$_GET['go'].'&p_id='.$treepid[$i].'&id='.$treeid[$i].'&action=up">&#8593;</a> <a title="вниз" style="text-decoration:none;color:blue;" class="moveit_r" href="cms.php?go='.$_GET['go'].'&p_id='.$treepid[$i].'&id='.$treeid[$i].'&action=dwn">&#8595;</a> '.$treename[$i].' - <a href="cms.php?go='.$_GET['go'].'&amp;edit=1&amp;id='.$treeid[$i].'" style="color: green;"><img alt="редактировать" src="img/edit.gif" width="16" style="vertical-align:-3px;" /></a>';
+	if (!$_GET['del'] && !($treelevel[$i+1]>$treelevel[$i]))
+		echo ' | <a href="cms.php?go='.$_GET['go'].'&del='.$treeid[$i].'#item'.$treeid[$i].'" style="color: red;" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" style="vertical-align:-3px;" /></a>';
+	if ($_GET['del'] == $treeid[$i])
+		echo ' | Удалить? <a href="cms.php?go='.$_GET['go'].'&del2=1&id='.$_GET['del'].'" style="color: red;" title="Удаление">ДА</a> - <a href="cms.php?go='.$_GET['go'].'" style="color: black;" title="Отмена">НЕТ</a>';
+	if($treelevel[$i+1] > $treelevel[$i])
+		echo '<ul>';
+	if($treelevel[$i+1] == $treelevel[$i])
+		echo '</li>';
+	if($treelevel[$i+1] < $treelevel[$i]){
+		echo '</li>';
+		for($m=1;$m<=$treelevel[$i]-$treelevel[$i+1];$m++)
+			echo '</ul></li>';
+	}
+}
+echo '</ul>';
+?>

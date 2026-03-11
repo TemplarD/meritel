@@ -1,0 +1,125 @@
+<?php
+$copyed = 0;
+$copyedf = "";
+if($_GET['del2'] == 1){
+  $result = mysql_query("DELETE FROM ".MySQLprefix."_faq WHERE id=".$_GET['id']);
+  ?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Вопрос удален</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+  <?php
+}
+if(strlen($_POST['question'])>0){
+	if(!isset($_POST['st']))
+		$_POST['st'] = 0;
+	if(strlen($_POST['answer'])>0)
+		$_POST['st'] = 2;
+	if($_POST['todo'] == 1){
+		$result = mysql_query("UPDATE ".MySQLprefix."_faq SET name='".$_POST['name']."', question='".$_POST['question']."', answer='".$_POST['answer']."', st=".$_POST['st']." WHERE id=".$_POST['nid']);
+		?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Информация обновлена</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+		<?php
+	}else{
+		$result = mysql_query("INSERT INTO ".MySQLprefix."_faq (name, question, answer, st) VALUES ('".$_POST['name']."', '".$_POST['question']."', '".$_POST['answer']."', ".$_POST['st'].")");
+		?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Вопрос добавлен</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+		<?php
+	}
+}
+if(!isset($_GET['edit']) && !isset($_GET['add'])){
+$companies = mysql_query("SELECT * FROM ".MySQLprefix."_faq ORDER BY id DESC");
+if($companies)
+  if(mysql_num_rows($companies)>0){
+    ?><form method="post" action=""><table width="100%"><tr><td>Вопрос</td><td></td><td>Ответ</td><td></td><td>&nbsp;</td></tr><?php
+    while($company = mysql_fetch_assoc($companies))
+	  echo '<tr><td colspan="5"><hr/></td></tr><tr><td valign="top"><u>'.$company['name'].'</u><br/><i>'.$company['question'].'</i></td><td valign="top">&nbsp;</td><td valign="top"><i>'.$company['answer'].'</i></td><td valign="top">&nbsp;</td><td valign="top"><a href="cms.php?go='.$_GET['go'].'&amp;edit=1&amp;id='.$company['id'].'" style="color: green;"><img alt="редактировать" src="img/edit.gif" width="16" style="vertical-align:-3px;" /></a><br/>'.(!isset($_GET['del'])?'<a href="cms.php?go='.$_GET['go'].'&del='.$company['id'].'&filter='.$_GET['filter'].'" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" /></a>':'').($_GET['del']==$company['id']?'<br/>Удалить?<br/><a href="cms.php?go='.$_GET['go'].'&del2=1&id='.$_GET['del'].'" style="color: red;" title="Удаление">ДА</a> | <a href="cms.php?go='.$_GET['go'].'" style="color: black;" title="Отмена">НЕТ</a>':'').'</td></tr>';
+	?>
+	</table></form>
+	<script type="text/javascript">
+		<!--
+		$(document).ready(function(){
+			$('input[name="select_all"]').change(function(){
+				if($(this).attr('checked')){
+					$('.select_id').each(function(){
+						$(this).attr('checked', 'checked');
+					});
+				}else{
+					$('.select_id').each(function(){
+						$(this).removeAttr('checked');
+					});
+				}
+			});
+		});
+		//-->
+	</script>
+	<?php
+  }
+?>
+<a style="position:fixed;left:0;top:45%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" href='cms.php?go=<?php echo $_GET['go']; ?>&amp;add=1'>Добавить вопрос</a>
+<?php }else{
+if(isset($_GET['edit'])){
+	$new_r = mysql_query("SELECT * FROM ".MySQLprefix."_faq WHERE id=".$_GET['id']);
+	if($new_r)
+		if(mysql_num_rows($new_r)==1)
+			$company = mysql_fetch_assoc($new_r);
+}
+?>
+	<hr/>
+	<form action="" method="post" style="margin-top:40px" enctype="multipart/form-data">
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:34%;float:left;text-align:right;line-height:20px">Автор:</label>
+			<div style="display:block;width:64%;float:right;text-align:left;">
+				<input type="text" name="name" size="30" value='<?php echo $company['name']; ?>' style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:34%;float:left;text-align:right;line-height:20px">Статус:</label>
+			<div style="display:block;width:64%;float:right;text-align:left;">
+				<input type="radio" value="0" name="st" <?php if($_GET['add'] == 1 || ($company['st']==0 and $_GET['edit'] == 1)){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> не отображать | <input type="radio" value="1" name="st" <?php if($company['st']==1 and $_GET['edit'] == 1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> без ответа | <input type="radio" value="2" name="st" <?php if($company['st']==2 and $_GET['edit'] == 1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> ответ получен 
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:34%;float:left;text-align:right;line-height:20px">Вопрос:</label>
+			<div style="display:block;width:64%;float:right;text-align:left;">
+				<textarea name="question" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" cols="60" rows="5"><?php echo $company['question']; ?></textarea>
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:34%;float:left;text-align:right;line-height:20px">Ответ:</label>
+			<div style="display:block;width:64%;float:right;text-align:left;">
+				<textarea id="editor2" cols="80" rows="5" name="answer"><?php echo $company['answer']; ?></textarea>
+				<script type="text/javascript">
+					<!--
+					var ckeditor2 = CKEDITOR.replace("editor2");
+					AjexFileManager.init({returnTo: "ckeditor", editor: ckeditor2, skin: "light"});
+					//-->
+				</script>
+			</div>
+		</div>
+		<input type="hidden" name="todo" value="<?php echo $_GET['edit']; ?>" />
+		<input type="hidden" name="nid" value="<?php if($_GET['edit'] == 1){echo $_GET['id'];} ?>" />
+		<input type="submit" name="update" value="Сохранить" style="position:fixed;left:50%;margin-left:-500px;top:45%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" />
+	</form>
+<?php } ?>

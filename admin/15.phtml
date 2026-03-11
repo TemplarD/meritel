@@ -1,0 +1,192 @@
+<?php
+if($_GET['del2'] == 1){
+  $result = mysql_query("DELETE FROM ".MySQLprefix."_cities WHERE id=".$_GET['id']);
+  ?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Удален</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+  <?php
+}
+if(isset($_POST['action'])){
+	switch($_POST['action']){
+		case 'del':
+			$q = "DELETE FROM ".MySQLprefix."_cities WHERE id=";
+		break;
+		case 'show':
+			$q = "UPDATE ".MySQLprefix."_cities SET st='1' WHERE id=";
+		break;
+		case 'hide':
+			$q = "UPDATE ".MySQLprefix."_cities SET st='0' WHERE id=";
+		break;
+	}
+	foreach($_POST['select'] AS $id)
+		$upd = mysql_query($q.$id);
+}
+if(strlen($_POST['nurl'])>0){
+	if($_POST['todo'] == 1){
+		$upd_url = mysql_query("UPDATE ".MySQLprefix."_cities SET url='".$_POST['nurl']."', name='".$_POST['name']."', namer='".$_POST['namer']."' WHERE id=".$_POST['nid']);
+		$last_id=$_POST['nid'];
+		?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Информация обновлена</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+		<?php
+	}else{
+		$result = mysql_query("INSERT INTO ".MySQLprefix."_cities (url, name, namer) VALUES ('".$_POST['nurl']."', '".$_POST['name']."', '".$_POST['namer']."')");
+		$last_id = mysql_result(mysql_query("SELECT id FROM ".MySQLprefix."_cities ORDER BY id DESC LIMIT 0, 1"), 0);
+		?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Добавлен</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+		<?php
+	}
+}
+if(!$_GET['add'] && !$_GET['edit']){
+	echo '<form method="post" action="" class="act-formm"><label><input type="checkbox" name="select_all" value="1" /> отметить все</label> | С отмеченными: <select name="action" onchange="chekselekt()"><option value="">выбрать действие</option><option value="show">Активировать</option><option value="hide">Отключить</option><option value="del">Удалить</option></select><ul class="ul" style="margin-left:100px">';
+	$result = mysql_query("SELECT * FROM ".MySQLprefix."_cities ORDER BY id ASC");
+	if ($result)
+		while ($row = mysql_fetch_assoc($result)) {
+			echo '<li><input class="select_id" type="checkbox" name="select[]" value="'.$row['id'].'" /> '.$row['name'].($row['st']==0?' (<font style="color:grey">отключен</font>)':'').' - <a href="cms.php?go='.$_GET['go'].'&amp;edit=1&amp;id='.$row['id'].'#down" style="color: green;"><img alt="редактировать" src="img/edit.gif" width="16" style="vertical-align:-3px;" /></a> | ';
+			if (!$_GET['del'])
+				echo '<a href="cms.php?go='.$_GET['go'].'&del='.$row['id'].'#item'.$row['id'].'" title="Удаление" style="color:red"><img alt="Удалить" src="img/del.gif" width="16" style="vertical-align:-3px;" /></a>';
+			if ($_GET['del'] == $row['id'])
+				echo 'Подтверждаете удаление: <a href="cms.php?go='.$_GET['go'].'&del2=1&id='.$_GET['del'].'" style="color: red;" title="Удаление">ДА</a> - <a href="cms.php?go='.$_GET['go'].'" style="color: black;" title="Отмена">НЕТ</a>';
+			echo '</li>';
+		}
+	echo '</ul></form>'; ?>
+	<script>
+	function chekselekt(){
+		if($('.act-formm select').val()!='del'){
+			$('.del-or-not').remove();
+			$('.act-formm').submit();
+		}else{
+			$('.act-formm select').after('<span class="del-or-not">Подтвердите удаление: <a style="cursor:pointer;color:red">удалить</a></span>');
+			$('.del-or-not').click(function(){
+				$('.act-formm').submit();
+			});
+		}	
+	}
+	$(document).ready(function(){
+		$('input[name="select_all"]').change(function(){
+			if($(this).attr('checked')){
+				$('.select_id').each(function(){
+					$(this).attr('checked', 'checked');
+				});
+			}else{
+				$('.select_id').each(function(){
+					$(this).removeAttr('checked');
+				});
+			}
+		});
+	});
+	</script>
+	<?php
+}
+?>
+<a style="position:fixed;left:0;top:45%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" href='cms.php?go=<?php echo $_GET['go']; ?>&amp;add=1'>Добавить</a>
+<?php
+if(isset($_GET['edit']) || isset($_GET['add'])){
+	if(isset($_GET['edit'])){
+		$new_r = mysql_query("SELECT * FROM ".MySQLprefix."_cities WHERE id=".$_GET['id']);
+		if($new_r)
+			if(mysql_num_rows($new_r)==1)
+				$company = mysql_fetch_assoc($new_r);
+	}
+	?>
+	<hr/>
+	<form action="" method="post" style="margin-top:40px" enctype="multipart/form-data" class="save-form">
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Название *:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<input type="text" name="name" size="70" value='<?=$company['name']?>' style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Название (напр., "в Кирове") *:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<input type="text" name="namer" size="70" value='<?=$company['namer']?>' style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">URL страницы *:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<input type="text" name="nurl" size="70" value='<?=$company['url']?>' style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> <a class="transform-title" style="color:blue;text-decoration:underline;cursor:pointer;">Сформировать из Title</a> | <a class="check-url" style="color:blue;text-decoration:underline;cursor:pointer;">Проверить уникальность</a><br/><i class="check-url-result" style="color:black;text-decoration:none;"></i>
+			</div>
+		</div>
+		<script type="text/javascript">
+			function translite(string){
+				var dictionary = {
+					"а":"a",	"А":"a",	"б":"b",	"Б":"b",	"в":"v",	"В":"v",	"г":"g",	"Г":"g",	"д":"d",
+					"Д":"d",	"е":"e",	"Е":"e",	"ё":"yo",	"Ё":"yo",	"ж":"gh",	"Ж":"gh",	"з":"z",	"З":"z",
+					"и":"i",	"И":"i",	"й":"j",	"Й":"j",	"к":"k",	"К":"k",	"л":"l",	"Л":"l",	"м":"m",
+					"М":"m",	"н":"n",	"Н":"n",	"о":"o",	"О":"o",	"п":"p",	"П":"p",	"р":"r",	"Р":"r",
+					"с":"s",	"С":"s",	"т":"t",	"Т":"t",	"у":"u",	"У":"u",	"ф":"f",	"Ф":"f",	"х":"h",
+					"Х":"h",	"ц":"c",	"Ц":"c",	"ч":"ch",	"Ч":"ch",	"ш":"sh",	"Ш":"sh",	"щ":"sh",	"Щ":"sh",
+					"ы":"i",	"Ы":"i",	"э":"e",	"Э":"e",	"ю":"u",	"Ю":"yu",	"я":"ya",	"Я":"ya",	"ь":"",
+					"Ь":"",		"ъ":"",		"Ъ":"",		'"':'',		"'":'',		'!':'',		"?":'',		' ':'-',	":":'',
+					",":'',		".":'',		";":'',		"&":'',		"«":'',		"»":'',		"²":'2'};
+				return string.replace(/[\s\S]/g, function(x){
+					if( dictionary.hasOwnProperty( x ) )
+						return dictionary[ x ];
+					return x;
+				});
+			}
+			$(document).ready(function(){
+				$('.check-url').click(function(){
+					if($('input[name="nurl"]').val().length>0)
+						$.post('_check_url.php', {newurl: $('input[name="nurl"]').val()<?=($_GET['edit']==1 && $_GET['id']>0 ? ', city: '.$_GET['id'] : '')?>}, function(data){
+							if(data=='0'){
+								$('input[name="nurl"]').css({'color':'#090'});
+								$('.check-url-result').html('адрес свободен');
+								$('input[name="update"]').show();
+							}else{
+								$('input[name="nurl"]').css({'color':'#900'});
+								$('.check-url-result').html('адрес занят !!!');
+								$('input[name="update"]').hide();
+							}
+						});
+				});
+				$('.save-form').submit(function(){
+					if($('input[name="nurl"]').val().length>0)
+						$.post('_check_url.php', {newurl: $('input[name="nurl"]').val()<?=($_GET['edit']==1 && $_GET['id']>0 ? ', city: '.$_GET['id'] : '')?>}, function(data){
+							if(data != '0')
+								return false;
+						});
+					else
+						return false;
+				});
+				$('input[name="nurl"]').change(function(){
+					$('.check-url').click();
+				});
+				$('input[name="nurl"]').keyup(function(){
+					$('.check-url').click();
+				});
+				$('.transform-title').click(function(){
+					$('input[name="nurl"]').val(translite($('input[name="name"]').val()));
+					$('.check-url').click();
+				});
+			});
+		</script>
+		<input type="hidden" name="todo" value="<?php echo $_GET['edit']; ?>" />
+		<input type="hidden" name="nid" value="<?php if($_GET['edit'] == 1){echo $_GET['id'];} ?>" />
+		<input type="submit" name="update" value="Сохранить" style="position:fixed;left:0;top:50%;display:<?=($_GET['edit']==1 && $_GET['id']>0 && strlen($company['url'])>0?'block':'none')?>;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" />
+	</form>
+<?php } ?>

@@ -1,0 +1,106 @@
+<?php
+if($_GET['del2'] == 1){
+  $logo = mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_slides WHERE id=".$_GET['id']),0);
+  if(strlen($logo)>0)
+	unlink('../'.$logo);
+  $result = mysql_query("DELETE FROM ".MySQLprefix."_slides WHERE id=".$_GET['id']);
+  ?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Слайд удален</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+  <?php
+}
+if(isset($_FILES["logo"]) || isset($_POST["text"])){
+	$newlogo = "";
+	if (isset($_FILES["logo"])){
+		$ran = round(rand(10000000000000, 99999999999999), 0);
+		$n_type = substr($_FILES["logo"]["name"], strrpos($_FILES["logo"]["name"], '.'), strlen($_FILES["logo"]["name"])-strrpos($_FILES["logo"]["name"], '.'));
+		if(move_uploaded_file($_FILES["logo"]["tmp_name"], "uploads/slides/".$ran.$n_type))
+			$newlogo = "admin/uploads/slides/".$ran.$n_type;
+	}
+	if($_POST['todo'] == 1){
+		$logo = mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_slides WHERE id=".$_POST['nid']),0);
+		if(strlen($newlogo)>0 && strlen($logo)>0)
+			unlink('../'.$logo);
+		if(strlen($newlogo)==0)
+			$newlogo = $logo;
+		$result = mysql_query("UPDATE ".MySQLprefix."_slides SET logo='".$newlogo."', `text`='".$_POST['text']."' WHERE id=".$_POST['nid']);
+		?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Информация обновлена</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+		<?php
+	}else{
+		$result = mysql_query("INSERT INTO ".MySQLprefix."_slides (logo, `text`) VALUES ('".$newlogo."', '".$_POST['text']."')");
+		?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Слайд добавлен</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+		<?php
+	}
+}
+if(!isset($_GET['edit']) && !isset($_GET['add'])){
+$companies = mysql_query("SELECT * FROM ".MySQLprefix."_slides ORDER BY id");
+if($companies)
+  if(mysql_num_rows($companies)>0){
+    ?>
+	<table width="100%"><tr><td>Фото</td><td>&nbsp;</td></tr><?php
+    while($company = mysql_fetch_assoc($companies))
+	  echo '<tr><td colspan="2"><hr/></td></tr><tr><td valign="top"><img style="max-width:700px" alt="" src="../'.$company['logo'].'" /></td><td valign="top"><a href="cms.php?go='.$_GET['go'].'&amp;edit=1&amp;id='.$company['id'].'" style="color: green;"><img alt="редактировать" src="img/edit.gif" width="16" style="vertical-align:-3px;" /></a><br/>'.(!isset($_GET['del'])?'<a href="cms.php?go='.$_GET['go'].'&del='.$company['id'].'&filter='.$_GET['filter'].'" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" /></a>':'').($_GET['del']==$company['id']?'<br/>Удалить?<br/><a href="cms.php?go='.$_GET['go'].'&del2=1&id='.$_GET['del'].'" style="color: red;" title="Удаление">ДА</a> | <a href="cms.php?go='.$_GET['go'].'" style="color: black;" title="Отмена">НЕТ</a>':'').'</td></tr>';
+	?>
+	</table><hr/>
+	<?php
+  }
+?>
+<a style="position:fixed;left:0;top:50%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" href='cms.php?go=<?php echo $_GET['go']; ?>&amp;add=1'>Добавить</a>
+<?php }else{
+if(isset($_GET['edit'])){
+	$company_r = mysql_query("SELECT * FROM ".MySQLprefix."_slides WHERE id=".$_GET['id']);
+	if($company_r)
+		if(mysql_num_rows($company_r)==1)
+			$company = mysql_fetch_assoc($company_r);
+}
+?>
+	<hr/>
+	<form action="" method="post" style="margin-top:40px;min-height:300px" enctype="multipart/form-data">
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:34%;float:left;text-align:right;line-height:20px">Картинка (один файл 645x200):</label>
+			<div style="display:block;width:64%;float:right;text-align:left;">
+				<?php if(strlen($company['logo'])>0){ ?><img alt="logo" src="../<?php echo $company['logo']; ?>" border="0" style="float:left;height:65px;margin-right:20px;" /><?php } ?>
+				<input type="file" name="logo" />
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:34%;float:left;text-align:right;line-height:20px">Текст на картинке:</label>
+			<div style="display:block;width:64%;float:right;text-align:left;">
+				<textarea id="editor2" cols="80" rows="5" name="text"><?=$company['text']?></textarea>
+				<script type="text/javascript">
+					<!--
+					var ckeditor2 = CKEDITOR.replace("editor2");
+					//-->
+				</script>
+			</div>
+		</div>
+		<input type="hidden" name="todo" value="<?php echo $_GET['edit']; ?>" />
+		<input type="hidden" name="nid" value="<?php if($_GET['edit'] == 1){echo $_GET['id'];} ?>" />
+		<input type="submit" name="update" value="Сохранить" style="position:fixed;left:0;top:50%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" />
+	</form>
+<?php } ?>

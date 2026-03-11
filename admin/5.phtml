@@ -1,0 +1,301 @@
+<?php
+$copyed = 0;
+$copyedf = "";
+if(isset($_POST['action'])){
+	switch($_POST['action']){
+		case 'hide':
+			$q = "UPDATE ".MySQLprefix."_news SET status=0 WHERE id=";
+		break;
+		case 'show':
+			$q = "UPDATE ".MySQLprefix."_news SET status=1 WHERE id=";
+		break;
+	}
+	foreach($_POST['select'] AS $id)
+		$upd = mysql_query($q.$id);
+}
+if($_GET['ph_del_n'] > 0){
+	$files_where = explode('|',mysql_result(mysql_query("SELECT pic FROM ".MySQLprefix."_news WHERE id=".$_GET['id']), 0));
+	$new_linn = '';
+	if(count($files_where)>0){
+		for ($fw=0;$fw<count($files_where);$fw++)
+			if($_GET[ph_del_n]-1!=$fw)
+				$new_linn .= $files_where[$fw].'|';
+			elseif(strlen($files_where[$fw])>0){
+				unlink('../'.$files_where[$fw]);
+				unlink('../'.str_replace('uploads/', 'uploads/small/', $files_where[$fw]));
+			}
+		if(strlen($new_linn)>0)
+			$new_linn = substr($new_linn,0, strlen($new_linn)-1);
+		$result = mysql_query("UPDATE ".MySQLprefix."_news SET pic='".$new_linn."' WHERE id=".$_GET['id']);
+	}
+}
+if($_GET['del2'] == 1){
+	$del_r = mysql_query("SELECT pic FROM ".MySQLprefix."_news WHERE id=".$_GET['del2']);
+	if($del_r && mysql_num_rows($del_r)==1){
+		$files_where = explode('|',mysql_result($del_r, 0));
+		if(count($files_where)>0)
+			for ($fw=0;$fw<count($files_where);$fw++)
+				if(strlen($files_where[$fw])>0)
+					unlink('../'.$files_where[$fw]);
+	}
+	$upd_url = mysql_query("DELETE FROM ".MySQLprefix."_urls WHERE target_type='news' AND target_id=".$_GET['id']);
+	$result = mysql_query("DELETE FROM ".MySQLprefix."_news WHERE id=".$_GET['id']);
+	?>
+<div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Новость удалена</div>
+<script type="text/javascript">
+	<!--
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+	//-->
+</script>
+	<?php
+}
+if(strlen($_POST['name'])>0){
+	if($_POST['shows']!=1)
+		$_POST['shows'] = 0;
+	$linnnn = '';
+	for ($nf=0;$nf<count($_FILES["npic"]["tmp_name"]);$nf++){
+		$ran = getmicrotime();
+		$n_types = explode('.',$_FILES["npic"]["name"][$nf]);
+		$n_type = strtolower($n_types[count($n_types)-1]);
+		if(in_array($n_type, $FILE_TYPE_ENABLED['images']) && move_uploaded_file($_FILES["npic"]["tmp_name"][$nf], "uploads/".$ran.'.'.$n_type)){
+			$linnnn .= "admin/uploads/".$ran.'.'.$n_type."|";
+			chmod("uploads/".$ran.'.'.$n_type, 0644);
+		}
+		unset($n_types, $n_type);
+	}
+	if(strlen($linnnn)>0)
+		$linnnn = substr($linnnn,0, strlen($linnnn)-1);
+	if($_POST['todo'] == 1){
+		$files_where = mysql_result(mysql_query("SELECT pic FROM ".MySQLprefix."_news WHERE id=".$_POST['nid']),0);
+		if(strlen($files_where)>0)
+			$linnnn = $files_where."|".$linnnn;
+		mysql_query("UPDATE ".MySQLprefix."_news SET shows=".$_POST['shows'].", pic='".$linnnn."', comment='".$_POST['comment']."', name='".$_POST['name']."', h1='".$_POST['h1']."', title='".$_POST['title']."', description='".$_POST['description']."', keywords='".$_POST['keywords']."', date_create='".$_POST['date_create']." 12:00:00' WHERE id=".$_POST['nid']);
+		mysql_query("UPDATE ".MySQLprefix."_urls SET url='".$_POST['url']."' WHERE target_type='news' AND target_id=".$_POST['nid']);
+		?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Информация обновлена</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+		<?php
+	}else{
+		mysql_query("INSERT INTO ".MySQLprefix."_news (shows, comment, h1, name, title, description, keywords, pic, date_create) VALUES (".$_POST['shows'].", '".$_POST['comment']."', '".$_POST['h1']."', '".$_POST['name']."', '".$_POST['title']."', '".$_POST['description']."', '".$_POST['keywords']."', '".$linnnn."', '".$_POST['date_create']." 12:00:00')");
+		$last_id = mysql_result(mysql_query("SELECT id FROM ".MySQLprefix."_news ORDER BY id DESC LIMIT 0, 1"), 0);
+		mysql_query("INSERT INTO ".MySQLprefix."_urls (url, target_type, target_id) VALUES ('".$_POST['url']."', 'news', ".$last_id.")");
+		?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Новость добавлена</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+		<?php
+	}
+}
+if(!isset($_GET['edit']) && !isset($_GET['add'])){
+	$companies = mysql_query("SELECT * FROM ".MySQLprefix."_news ORDER BY date_create DESC");
+	if($companies && mysql_num_rows($companies)>0){
+		?>
+<form method="post" action="">
+	<table width="100%">
+		<tr><td>Новость</td><td>Дата</td><td>&nbsp;</td></tr>
+		<?php
+		while($company = mysql_fetch_assoc($companies))
+			echo '<tr><td colspan="3"><hr/></td></tr><tr><td valign="top"><b'.($company['shows']==0?' style="color:grey"':'').'>'.$company['h1'].'</b><br/><i'.($company['shows']==0?' style="color:grey"':'').'>'.textTrimm($company['comment'], 300).'</i></td><td valign="top"'.($company['shows']==0?' style="color:grey"':'').'>'.date('d.m.Y',strtotime($company['date_create'])).'</td><td valign="top"><a href="cms.php?go='.$_GET['go'].'&amp;edit=1&amp;id='.$company['id'].'" style="color: green;"><img alt="редактировать" src="img/edit.gif" width="16" style="vertical-align:-3px;" /></a><br/>'.(!isset($_GET['del'])?'<a href="cms.php?go='.$_GET['go'].'&del='.$company['id'].'&filter='.$_GET['filter'].'" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" /></a>':'').($_GET['del']==$company['id']?'<br/>Удалить?<br/><a href="cms.php?go='.$_GET['go'].'&del2=1&id='.$_GET['del'].'" style="color: red;" title="Удаление">ДА</a> | <a href="cms.php?go='.$_GET['go'].'" style="color: black;" title="Отмена">НЕТ</a>':'').'</td></tr>';
+		?>
+	</table>
+</form>
+<script type="text/javascript">
+	<!--
+	$(document).ready(function(){
+		$('input[name="select_all"]').change(function(){
+			if($(this).attr('checked')){
+				$('.select_id').each(function(){
+					$(this).attr('checked', 'checked');
+				});
+			}else{
+				$('.select_id').each(function(){
+					$(this).removeAttr('checked');
+				});
+			}
+		});
+	});
+	//-->
+</script>
+		<?php
+	}
+	?>
+<a style="position:fixed;left:0;top:45%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" href='cms.php?go=<?php echo $_GET['go']; ?>&amp;add=1'>Добавить новость</a>
+	<?php
+}else{
+	if(isset($_GET['edit'])){
+		$new_r = mysql_query("SELECT ".MySQLprefix."_news.*, ".MySQLprefix."_urls.url FROM ".MySQLprefix."_news, ".MySQLprefix."_urls WHERE ".MySQLprefix."_news.id='".$_GET['id']."' AND ".MySQLprefix."_urls.target_id=".MySQLprefix."_news.id AND ".MySQLprefix."_urls.target_type='news'");
+		if($new_r && mysql_num_rows($new_r)==1)
+			$company = mysql_fetch_assoc($new_r);
+	}
+	?>
+<hr/>
+	<form action="" method="post" style="margin-top:40px" enctype="multipart/form-data" class="save-form">
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Название:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<textarea name="name" cols="50" rows="1" style="border:1px solid #011393;border-radius:3px;padding:1px 5px;font:12px/20px Tahoma;height:20px;vertical-align:middle"><?=$company['name']?></textarea> <a class="dubl" style="color:blue;cursor:pointer;text-decoration:underline">Копир. в СЕО</a> | Дата: <input type="text" name="date_create" id="datepicker" size="14" value='<?php if($_GET['add'] == 1){ echo date("Y-m-d"); }else{ echo date("Y-m-d",strtotime($company['date_create'])); } ?>' style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> <input type="checkbox" value="1" name="shows" <?php if($_GET['add'] == 1 || ($company['shows']==1 and $_GET['edit'] == 1)){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> показывать на сайте
+				<script>
+					<!--
+					var picker = new Pikaday(
+					{
+						field: document.getElementById('datepicker'),
+						firstDay: 1,
+						minDate: new Date('<?=(date('Y')-5)?>-01-01'),
+						maxDate: new Date('<?=(date('Y')+5)?>-12-31'),
+						yearRange: [<?=($_GET['add'] == 1 ? date('Y')-1 : date("Y",strtotime($company['date_create']))-1)?>,<?=($_GET['add'] == 1 ? date('Y')+1 : date("Y",strtotime($company['date_create']))+1)?>]
+					});
+					picker.setMoment(moment().dayOfYear(<?=($_GET['add'] == 1 ? date('z')+1 : date("z",strtotime($company['date_create']))+1)?>));
+					//-->
+				</script>
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">URL:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<input type="text" name="url" size="60" value='<?=$company['url']?>' style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> <a class="transform-title" style="color:blue;text-decoration:underline;cursor:pointer;">Сформировать из Title</a> | <a class="check-url" style="color:blue;text-decoration:underline;cursor:pointer;">Проверить уникальность</a><br/><i class="check-url-result" style="color:black;text-decoration:none;"></i>
+				<script type="text/javascript">
+					function translite(string){
+						var dictionary = {
+							"а":"a",	"А":"a",	"б":"b",	"Б":"b",	"в":"v",	"В":"v",	"г":"g",	"Г":"g",	"д":"d",
+							"Д":"d",	"е":"e",	"Е":"e",	"ё":"yo",	"Ё":"yo",	"ж":"gh",	"Ж":"gh",	"з":"z",	"З":"z",
+							"и":"i",	"И":"i",	"й":"j",	"Й":"j",	"к":"k",	"К":"k",	"л":"l",	"Л":"l",	"м":"m",
+							"М":"m",	"н":"n",	"Н":"n",	"о":"o",	"О":"o",	"п":"p",	"П":"p",	"р":"r",	"Р":"r",
+							"с":"s",	"С":"s",	"т":"t",	"Т":"t",	"у":"u",	"У":"u",	"ф":"f",	"Ф":"f",	"х":"h",
+							"Х":"h",	"ц":"c",	"Ц":"c",	"ч":"ch",	"Ч":"ch",	"ш":"sh",	"Ш":"sh",	"щ":"sh",	"Щ":"sh",
+							"ы":"i",	"Ы":"i",	"э":"e",	"Э":"e",	"ю":"u",	"Ю":"yu",	"я":"ya",	"Я":"ya",	"ь":"",
+							"Ь":"",		"ъ":"",		"Ъ":"",		'"':'',		"'":'',		'!':'',		"?":'',		' ':'-',	":":'',
+							",":'',		".":'',		";":'',		"&":'',		"«":'',		"»":'',		"²":'2'};
+						return string.replace(/[\s\S]/g, function(x){
+							if( dictionary.hasOwnProperty( x ) )
+								return dictionary[ x ];
+							return x;
+						});
+					}
+					$(document).ready(function(){
+						$(".dubl").click(function(){
+							$("textarea[name='title']").val($("textarea[name='name']").val());
+							$("textarea[name='description']").val($("textarea[name='name']").val());
+							$("textarea[name='keywords']").val($("textarea[name='name']").val());
+							$("input[name='h1']").val($("textarea[name='name']").val());
+						});
+						$('.check-url').click(function(){
+							if($('input[name="url"]').val().length>0)
+								$.post('_check_url.php', {newurl: $('input[name="url"]').val()<?=($_GET['edit']==1 && $_GET['id']>0 ? ', edit: '.$_GET['id'] : '')?>}, function(data){
+									if(data=='0'){
+										$('input[name="url"]').css({'color':'#090'});
+										$('.check-url-result').html('адрес свободен');
+										$('input[name="update"]').show();
+									}else{
+										$('input[name="url"]').css({'color':'#900'});
+										$('.check-url-result').html('адрес занят !!!');
+										$('input[name="update"]').hide();
+									}
+								});
+						});
+						$('.transform-title').click(function(){
+							$('input[name="url"]').val(translite($('textarea[name="title"]').val()));
+						});
+						$('.save-form').submit(function(){
+							if($('input[name="url"]').val().length>0)
+								$.post('_check_url.php', {newurl: $('input[name="url"]').val()<?=($_GET['edit']==1 && $_GET['id']>0 ? ', edit: '.$_GET['id'] : '')?>}, function(data){
+									if(data != '0')
+										return false;
+								});
+							else
+								return false;
+						});
+						$('input[name="url"]').change(function(){
+							$('.check-url').click();
+						});
+						$('input[name="url"]').keyup(function(){
+							$('.check-url').click();
+						});
+						$('.transform-title').click(function(){
+							$('input[name="url"]').val(translite($('textarea[name="title"]').val()));
+							$('.check-url').click();
+						});
+					});
+				</script>
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Картинка:</label>
+			<?php if(strlen($company["pic"])>0){ ?>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<?php $files_where = explode('|', $company["pic"]); if(count($files_where)>0){ for ($fw=0;$fw<count($files_where);$fw++){ if(strlen($files_where[$fw])>0){ ?>
+				<span style="display:block;width:136px;height:103px;overflow:hidden;float:left;border:1px solid grey;margin:1px;text-align:center;line-height:103px;position:relative;">
+					<img src="../<?php echo $files_where[$fw]; ?>" style="border:0;height:103px;width:136px;vertical-align:middle;position:relative;" />
+					<a href="cms.php?go=<?php echo $_GET['go']; ?>&edit=1&id=<?php echo $_GET['id']; ?>&ph_del_n=<?php echo ($fw+1); ?>" style="display:block;width:16px;height:16px;position:absolute;right:0;top:0;background:url(img/del.gif);cursor:pointer;"></a>
+				</span>
+				<?php }}} ?>
+			</div>
+			<?php } ?>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<p class="piccs"></p>
+				<script type="text/javascript">
+					<!--
+					function addformpht(){$(".piccs").append('<input type="file" name="npic[]" /><br/>');}
+					//-->
+				</script>
+				<a onclick="addformpht();" style="color:blue;font-weight:bold;cursor:pointer;">Добавить картинки (+1)</a>
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">SEO title:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<textarea name="title" cols="80" rows="2" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$company['title']?></textarea>
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">SEO description:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<textarea name="description" cols="80" rows="2" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$company['description']?></textarea>
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">SEO keywords:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<textarea name="keywords" cols="80" rows="2" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$company['keywords']?></textarea>
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Заголовок H1:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<input type="text" name="h1" size="80" value='<?=$company['h1']?>' style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Текст новости:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<textarea id="editor2" cols="80" rows="5" name="comment"><?php echo $company['comment']; ?></textarea>
+				<script type="text/javascript">
+					<!--
+					var ckeditor2 = CKEDITOR.replace("editor2");
+					AjexFileManager.init({returnTo: "ckeditor", editor: ckeditor2, skin: "light"});
+					//-->
+				</script>
+			</div>
+		</div>
+		<input type="hidden" name="todo" value="<?php echo $_GET['edit']; ?>" />
+		<input type="hidden" name="nid" value="<?php if($_GET['edit'] == 1){echo $_GET['id'];} ?>" />
+		<input type="submit" name="update" value="Сохранить" style="position:fixed;left:0;top:45%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" />
+	</form>
+<?php } ?>

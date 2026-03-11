@@ -1,0 +1,72 @@
+<?php
+if($_GET[moveit]=='l'){
+	$who_dwn = mysql_query("SELECT sort_id, id FROM ".MySQLprefix."_good_chars WHERE sort_id<".$_GET[sortid]." ORDER BY sort_id DESC LIMIT 0, 1");
+	while($who_dwni = mysql_fetch_assoc($who_dwn)){
+		$moving1 = mysql_query("UPDATE ".MySQLprefix."_good_chars SET sort_id=".$who_dwni[sort_id]." WHERE id=".$_GET[id]);
+		$moving2 = mysql_query("UPDATE ".MySQLprefix."_good_chars SET sort_id=".$_GET[sortid]." WHERE id=".$who_dwni[id]);
+	}
+}elseif($_GET[moveit]=='r'){
+	$who_dwn = mysql_query("SELECT sort_id, id FROM ".MySQLprefix."_good_chars WHERE sort_id>".$_GET[sortid]." ORDER BY sort_id ASC LIMIT 0, 1");
+	while($who_dwni = mysql_fetch_assoc($who_dwn)){
+		$moving1 = mysql_query("UPDATE ".MySQLprefix."_good_chars SET sort_id=".$who_dwni[sort_id]." WHERE id=".$_GET[id]);
+		$moving2 = mysql_query("UPDATE ".MySQLprefix."_good_chars SET sort_id=".$_GET[sortid]." WHERE id=".$who_dwni[id]);
+	}
+}
+if($_GET['del2'] == 1)
+	$result = mysql_query("DELETE FROM ".MySQLprefix."_good_chars WHERE id=".$_GET['id']);
+if(strlen($_POST['nname'])>0)
+	if($_POST['todo'] == 1)
+		$result = mysql_query("UPDATE ".MySQLprefix."_good_chars SET name='".$_POST['nname']."', ed='".$_POST['ned']."', text='".$_POST['editor']."' WHERE id=".$_POST['nid']);
+	else{
+		$result = mysql_query("INSERT INTO ".MySQLprefix."_good_chars (name, ed, text) VALUES ('".$_POST['nname']."', '".$_POST['ned']."', '".$_POST['editor']."')");
+		$upd = mysql_query("UPDATE ".MySQLprefix."_good_chars SET sort_id=id WHERE sort_id=0");
+	}
+if ($_GET[add] == 1 or $_GET[edit] == 1){
+	echo '<form action="cms.php?go='.$_GET['go'].'" method="post" name="page_form" enctype="multipart/form-data">';
+	if ($_GET[edit] == 1){
+		$res31 = mysql_query("SELECT * FROM ".MySQLprefix."_good_chars WHERE id=".$_GET['id']);
+		$row31 = mysql_fetch_assoc($res31);
+	}
+	echo '<div style="width:100%;overflow:hidden"><label style="display:block;width:34%;float:left;text-align:right;line-height:20px">Название:</label><div style="display:block;width:64%;float:right;text-align:left;"><input size=50 type="text" name="nname" size=20 value="';
+	if ($_GET[edit] == 1){
+		echo $row31["name"];
+	}
+	echo '" /></div></div><br/><br/><div style="width:100%;overflow:hidden"><label style="display:block;width:34%;float:left;text-align:right;line-height:20px">Ед. изм.:</label><div style="display:block;width:64%;float:right;text-align:left;"><input size=50 type="text" name="ned" size=20 value="';
+	if ($_GET[edit] == 1){
+		echo $row31["ed"];
+	}
+	echo '" /></div></div><br/><br/><div style="width:100%;overflow:hidden"><label style="display:block; width:34%; float:left; text-align:right; line-height:20px">Определение:</label><div style="display:block;width:64%;float:right;text-align:left;"><textarea cols="60" rows="5" name="editor">';
+	if ($_GET[edit] == 1){
+		echo $row31["text"];
+	}
+	echo '</textarea></div></div><input type="hidden" name="todo" value="'.$_GET[edit].'"><input type="hidden" name="nid" value="';
+	if ($_GET[edit] == 1){
+		echo $_GET[id];
+	}
+	echo '"><input type="submit" name="update" value="Сохранить характеристику" style="position:fixed;left:0;top:60%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" /></form><hr/>';
+}else{
+?>
+<a style="position:fixed;left:0;top:60%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" href='cms.php?go=<?php echo $_GET['go']; ?>&amp;add=1'>Добавить характеристику</a>
+<?php }
+$result = mysql_query("SELECT * FROM ".MySQLprefix."_good_chars ORDER BY sort_id ASC");
+if ($result){
+	echo '<ul style="width:90%;">';
+	while ($row = mysql_fetch_assoc($result)) {
+		echo '<li>';
+		if(mysql_num_rows(mysql_query("SELECT id FROM ".MySQLprefix."_good_chars WHERE sort_id<".$row[sort_id]))>0){
+		  echo ' <a title="вверх" style="text-decoration:none;color:blue;" href="cms.php?go='.$_GET['go'].'&moveit=l&id='.$row[id].'&sortid='.$row[sort_id].'">&#8593;</a>';
+		}
+		if(mysql_num_rows(mysql_query("SELECT id FROM ".MySQLprefix."_good_chars WHERE sort_id>".$row[sort_id]))>0){
+		  echo ' <a title="вниз" style="text-decoration:none;color:blue;" href="cms.php?go='.$_GET['go'].'&moveit=r&id='.$row[id].'&sortid='.$row[sort_id].'">&#8595;</a>';
+		}
+		echo ' <b>'.$row[name].'</b> ('.$row[ed].') - '.$row[text];
+		echo ' - <a href="cms.php?go='.$_GET['go'].'&amp;edit=1&amp;id='.$row[id].'" style="color: green;"><img alt="редактировать" src="img/edit.gif" width="16" style="vertical-align:-3px;" /></a>';
+		if (!$_GET[del])
+			echo ' | <a href="cms.php?go='.$_GET['go'].'&del='.$row[id].'#item'.$row[id].'" style="color: red;" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" style="vertical-align:-3px;" /></a>';
+		if ($_GET[del] == $row[id])
+			echo ' | Удалить? <a href="cms.php?go='.$_GET['go'].'&del2=1&id='.$_GET[del].'" style="color: red;" title="Удаление">ДА</a> - <a href="cms.php?go='.$_GET['go'].'" style="color: black;" title="Отмена">НЕТ</a>';
+		echo '</li>';
+	}
+	echo '</ul>';
+}
+?>

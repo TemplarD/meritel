@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  web:
+    image: php:5.6-apache
+    container_name: meritel43_web
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    command: >
+      bash -c "
+        a2enmod rewrite &&
+        echo 'ServerName localhost' >> /etc/apache2/apache2.conf &&
+        sed -i 's|AllowOverride None|AllowOverride All|g' /etc/apache2/apache2.conf &&
+        docker-php-ext-install mysql &&
+        apache2-foreground
+      "
+
+  db:
+    image: mysql:5.7
+    container_name: meritel43_db
+    command: --sql-mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: viz620
+      MYSQL_USER: meritel
+      MYSQL_PASSWORD: meritel123
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./p291927_mrtl3.sql:/docker-entrypoint-initdb.d/dump.sql
+    ports:
+      - "3306:3306"
+
+volumes:
+  db_data:

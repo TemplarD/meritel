@@ -1,0 +1,482 @@
+<?php
+include("_additional.php");
+//удаление изображения
+if(isset($_GET['del_pht']) && $_GET['del_pht']>0){
+	$result = mysql_query("SELECT logo FROM ".MySQLprefix."_photogal WHERE id=".$_GET['del_pht']);
+	if($result && mysql_num_rows($result)==1){
+		$slide = mysql_fetch_assoc($result);
+		unlink('../'.$slide['logo']);
+		$result = mysql_query("DELETE FROM ".MySQLprefix."_photogal WHERE id=".$_GET['del_pht']);
+	}
+}
+//обработка действий
+if(isset($_POST['action'])){
+	switch($_POST['action']){
+		//перемещение в др.альбом
+		case 'transfer':
+			$q = "UPDATE ".MySQLprefix."_photogal SET p_id=".$_POST['newcat']." WHERE id=";
+		break;
+		//удаление
+		case 'del':
+			$q = "DELETE FROM ".MySQLprefix."_photogal WHERE id=";
+		break;
+	}
+	foreach($_POST['select'] AS $id){
+		//при удалении стираем файл изображения
+		if($_POST['action']=='del'){
+			$logo = mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_photogal WHERE id=".$id),0);
+			if(strlen($logo)>0)
+				unlink('../'.$logo);
+			$del = mysql_query("DELETE FROM ".MySQLprefix."_cart WHERE good=".$id);
+		}
+		$upd = mysql_query($q.$id);
+	}
+}
+//обработка сортировки альбомов
+if(isset($_GET['aaction']) && strlen($_GET['aaction'])>0 && isset($_GET['id']) && $_GET['id']>0){
+	$sort_id = mysql_result(mysql_query("SELECT sort_id FROM ".MySQLprefix."_photoalb WHERE id='".$_GET['id']."'"), 0);
+	if($_GET['aaction']=='up')
+		$up_ = mysql_query("SELECT sort_id, id FROM ".MySQLprefix."_photoalb WHERE sort_id<".$sort_id." AND p_id='".$_POST['p_id']."' ORDER BY sort_id DESC LIMIT 0, 1");
+	else
+		$up_ = mysql_query("SELECT sort_id, id FROM ".MySQLprefix."_photoalb WHERE sort_id>".$sort_id." AND p_id='".$_POST['p_id']."' ORDER BY sort_id ASC LIMIT 0, 1");
+	if($up_ && mysql_num_rows($up_)==1){
+		$up = mysql_fetch_assoc($up_);
+		$r = mysql_query("UPDATE ".MySQLprefix."_photoalb SET sort_id=".$up['sort_id']." WHERE id=".$_GET['id']);
+		$r = mysql_query("UPDATE ".MySQLprefix."_photoalb SET sort_id=".$sort_id." WHERE id=".$up['id']);
+	}
+}
+//обработка сортировки изображений
+if(isset($_GET['action']) && strlen($_GET['action'])>0 && isset($_GET['id']) && $_GET['id']>0){
+	$sort_id = mysql_result(mysql_query("SELECT sort_id FROM ".MySQLprefix."_photogal WHERE id=".$_GET['id']), 0);
+	if($_GET['action']=='up')
+		$up_ = mysql_query("SELECT sort_id, id FROM ".MySQLprefix."_photogal WHERE sort_id<".$sort_id." AND p_id=".$_GET['p_id']." ORDER BY sort_id DESC LIMIT 0, 1");
+	else
+		$up_ = mysql_query("SELECT sort_id, id FROM ".MySQLprefix."_photogal WHERE sort_id>".$sort_id." AND p_id=".$_GET['p_id']." ORDER BY sort_id ASC LIMIT 0, 1");
+	if($up_ && mysql_num_rows($up_)==1){
+		$up = mysql_fetch_assoc($up_);
+		$r = mysql_query("UPDATE ".MySQLprefix."_photogal SET sort_id=".$up['sort_id']." WHERE id=".$_GET['id']);
+		$r = mysql_query("UPDATE ".MySQLprefix."_photogal SET sort_id=".$sort_id." WHERE id=".$up['id']);
+	}
+}
+//удаление альбома
+if(isset($_GET['del_alb']) && $_GET['del_alb']>0){
+	//есть ли изображения в альбоме
+	$result = mysql_query("SELECT id FROM ".MySQLprefix."_photogal WHERE p_id=".$_GET['del_alb']);
+	if($result && mysql_num_rows($result)>0){
+		?><b style="color:red">Альбом содержит изображения и не может быть удален!</b><?php
+	}else{
+		//стирание файла лого альбома
+		$result = mysql_query("SELECT logo FROM ".MySQLprefix."_photoalb WHERE id=".$_GET['del_alb']);
+		if($result && mysql_num_rows($result)==1){
+			$slide = mysql_fetch_assoc($result);
+			unlink('../'.$slide['logo']);
+			$result = mysql_query("DELETE FROM ".MySQLprefix."_photoalb WHERE id=".$_GET['del_alb']);
+		}
+	}
+	if($_GET['del_alb']==$_GET['alb'])
+		unset($_GET['alb']);
+}
+$ran = getmicrotime();
+//переименование изображения
+if(isset($_POST["newphtname"]))
+	$res = mysql_query("UPDATE ".MySQLprefix."_photogal SET name='".$_POST['newphtname']."' WHERE id=".$_POST['id']);
+//отправлено новое изображение
+if(strlen($_FILES["newphoto"]["name"])>0){
+	$ran = getmicrotime();
+	$n_types = explode('.',$_FILES["newphoto"]["name"]);
+	$n_type = strtolower($n_types[count($n_types)-1]);
+	if(in_array($n_type, $FILE_TYPE_ENABLED['images']) && move_uploaded_file($_FILES["newphoto"]["tmp_name"], "uploads/".$ran.'.'.$n_type)){
+		//накладываем водяного
+		if($additional[39]==1){
+			$fileimg = "uploads/".$ran.".".$n_type;
+			$size = getimagesize($fileimg);
+			$height = $size[1];
+			$width = $size[0];
+			$imageType = $size[2];
+			$imageType = image_type_to_mime_type($imageType);
+			switch($imageType){
+				case "image/gif":
+					$imgnow=imagecreatefromgif($fileimg);
+				break;
+				case "image/pjpeg":
+				case "image/jpeg":
+				case "image/jpg":
+					$imgnow=imagecreatefromjpeg($fileimg);
+				break;
+				case "image/png":
+				case "image/x-png":
+					$imgnow=imagecreatefrompng($fileimg);
+					imagesavealpha($imgnow, true);
+				break;
+			}
+			$stamp = imagecreatefrompng('../'.$additional[40]);
+			$size2 = getimagesize('../'.$additional[40]);
+			$height2 = $size2[1];
+			$width2 = $size2[0];
+			$k = 1;
+			if($width<$width2)
+				$kw = $width/$width2;
+			else
+				$kw = 1;
+			if($height<$height2)
+				$kh = $height/$height2;
+			else
+				$kh = 1;
+			if($width<$width2 || $height<$height2)
+				$k = $k>$kw?$kw:($k>$kh?$kh:$k);
+			imagecopyresampled($imgnow, $stamp, ($width-$k*$width2)/2, ($height-$k*$height2)/2, 0, 0, $k*$width2, $k*$height2, $width2, $height2);
+			switch($imageType){
+				case "image/gif":
+					imagegif($imgnow, $fileimg);
+				break;
+				case "image/pjpeg":
+				case "image/jpeg":
+				case "image/jpg":
+					imagejpeg($imgnow, $fileimg, 85);
+				break;
+				case "image/png":
+				case "image/x-png":
+					imagepng($imgnow, $fileimg);
+				break;
+			}
+			imagedestroy($newimg);
+		}
+		$res = mysql_query("INSERT INTO ".MySQLprefix."_photogal (logo, p_id, name) VALUES('admin/uploads/".$ran.".".$n_type."', ".$_POST['alb1'].", '".$_POST['newphoto_name']."')");
+		$res = mysql_query("UPDATE ".MySQLprefix."_photogal SET sort_id=id WHERE sort_id=0");
+		chmod("uploads/".$ran.'.'.$n_type, 0644);
+		unset($n_types, $n_type);
+	}
+}
+//обновляем или создаем альбом
+if(isset($_POST["alb"]) && $_POST["alb"]>0){
+	//указан альбом - обновляем
+	$n_types = explode('.',$_FILES["newalb"]["name"]["logo"]);
+	$n_type = strtolower($n_types[count($n_types)-1]);
+	//если фото загружено
+	if(in_array($n_type, $FILE_TYPE_ENABLED['images']) && move_uploaded_file($_FILES["newalb"]["tmp_name"]["logo"], "uploads/".$ran.'.'.$n_type)){
+		//накладываем водяного на лого
+		if($additional[39]==1){
+			$fileimg = "uploads/".$ran.".".$n_type;
+			$size = getimagesize($fileimg);
+			$height = $size[1];
+			$width = $size[0];
+			$imageType = $size[2];
+			$imageType = image_type_to_mime_type($imageType);
+			switch($imageType){
+				case "image/gif":
+					$imgnow=imagecreatefromgif($fileimg);
+				break;
+				case "image/pjpeg":
+				case "image/jpeg":
+				case "image/jpg":
+					$imgnow=imagecreatefromjpeg($fileimg);
+				break;
+				case "image/png":
+				case "image/x-png":
+					$imgnow=imagecreatefrompng($fileimg);
+					imagesavealpha($imgnow, true);
+				break;
+			}
+			$stamp = imagecreatefrompng('../'.$additional[40]);
+			$size2 = getimagesize('../'.$additional[40]);
+			$height2 = $size2[1];
+			$width2 = $size2[0];
+			$k = 1;
+			if($width<$width2)
+				$kw = $width/$width2;
+			else
+				$kw = 1;
+			if($height<$height2)
+				$kh = $height/$height2;
+			else
+				$kh = 1;
+			if($width<$width2 || $height<$height2)
+				$k = $k>$kw?$kw:($k>$kh?$kh:$k);
+			imagecopyresampled($imgnow, $stamp, ($width-$k*$width2)/2, ($height-$k*$height2)/2, 0, 0, $k*$width2, $k*$height2, $width2, $height2);
+			switch($imageType){
+				case "image/gif":
+					imagegif($imgnow, $fileimg);
+				break;
+				case "image/pjpeg":
+				case "image/jpeg":
+				case "image/jpg":
+					imagejpeg($imgnow, $fileimg, 85);
+				break;
+				case "image/png":
+				case "image/x-png":
+					imagepng($imgnow, $fileimg);
+				break;
+			}
+			imagedestroy($newimg);
+		}
+		$res = mysql_query("UPDATE ".MySQLprefix."_photoalb SET logo='admin/uploads/".$ran.".".$n_type."', name='".$_POST['newalb']['name']."', p_id='".$_POST['newalb']['p_id']."' WHERE id=".$_POST["alb"]);
+	}else
+		$res = mysql_query("UPDATE ".MySQLprefix."_photoalb SET name='".$_POST['newalb']['name']."', p_id='".$_POST['newalb']['p_id']."' WHERE id=".$_POST["alb"]);
+	unset($n_types, $n_type);
+}elseif(strlen($_FILES["newalb"]["name"]["logo"])>0){
+	//не указан, создаем новый
+	$n_types = explode('.',$_FILES["newalb"]["name"]["logo"]);
+	$n_type = strtolower($n_types[count($n_types)-1]);
+	if(in_array($n_type, $FILE_TYPE_ENABLED['images']) && move_uploaded_file($_FILES["newalb"]["tmp_name"]["logo"], "uploads/".$ran.".".$n_type)){
+		//накладываем водяного на лого
+		if($additional[39]==1){
+			$fileimg = "uploads/".$ran.".".$n_type;
+			$size = getimagesize($fileimg);
+			$height = $size[1];
+			$width = $size[0];
+			$imageType = $size[2];
+			$imageType = image_type_to_mime_type($imageType);
+			switch($imageType){
+				case "image/gif":
+					$imgnow=imagecreatefromgif($fileimg);
+				break;
+				case "image/pjpeg":
+				case "image/jpeg":
+				case "image/jpg":
+					$imgnow=imagecreatefromjpeg($fileimg);
+				break;
+				case "image/png":
+				case "image/x-png":
+					$imgnow=imagecreatefrompng($fileimg);
+					imagesavealpha($imgnow, true);
+				break;
+			}
+			$stamp = imagecreatefrompng('../'.$additional[40]);
+			$size2 = getimagesize('../'.$additional[40]);
+			$height2 = $size2[1];
+			$width2 = $size2[0];
+			$k = 1;
+			if($width<$width2)
+				$kw = $width/$width2;
+			else
+				$kw = 1;
+			if($height<$height2)
+				$kh = $height/$height2;
+			else
+				$kh = 1;
+			if($width<$width2 || $height<$height2)
+				$k = $k>$kw?$kw:($k>$kh?$kh:$k);
+			imagecopyresampled($imgnow, $stamp, ($width-$k*$width2)/2, ($height-$k*$height2)/2, 0, 0, $k*$width2, $k*$height2, $width2, $height2);
+			switch($imageType){
+				case "image/gif":
+					imagegif($imgnow, $fileimg);
+				break;
+				case "image/pjpeg":
+				case "image/jpeg":
+				case "image/jpg":
+					imagejpeg($imgnow, $fileimg, 85);
+				break;
+				case "image/png":
+				case "image/x-png":
+					imagepng($imgnow, $fileimg);
+				break;
+			}
+			imagedestroy($newimg);
+		}
+		$res = mysql_query("INSERT INTO ".MySQLprefix."_photoalb (logo, name, p_id) VALUES('admin/uploads/".$ran.".".$n_type."', '".$_POST['newalb']['name']."', '".$_POST['newalb']['p_id']."')");
+		$res = mysql_query("UPDATE ".MySQLprefix."_photoalb SET sort_id=id WHERE sort_id=0");
+	}
+	unset($n_types, $n_type);
+}
+$result = mysql_query("SELECT * FROM ".MySQLprefix."_photoalb ORDER BY p_id ASC, sort_id ASC");
+if ($result)
+	while ($row = mysql_fetch_assoc($result)) {
+		$treeid[] = $row["id"];
+		$treepid[] = $row["p_id"];
+		$treename[] = $row["name"];
+		$treelogo[] = $row["logo"];
+		$treelevel[] = 0;
+	}
+$count = count($treeid);
+for ($i=0;$i<$count-1;$i++){
+	$g = $i;
+	for ($j=1;$j<$count;$j++){
+		if ($treepid[$j] == $treeid[$i]){
+			$jid = $treeid[$j];
+			$jpid = $treepid[$j];
+			$jname = $treename[$j];
+			$jlogo = $treelogo[$j];
+			$jlevel = $treelevel[$i]+1;
+			$k=$j;
+			while ($k>$g+1){
+				$treeid[$k] = $treeid[$k-1];
+				$treepid[$k] = $treepid[$k-1];
+				$treename[$k] = $treename[$k-1];
+				$treelogo[$k] = $treelogo[$k-1];
+				$treelevel[$k] = $treelevel[$k-1];
+				$k=$k-1;
+			}
+			$treeid[$g+1] = $jid;
+			$treepid[$g+1] = $jpid;
+			$treename[$g+1] = $jname;
+			$treelogo[$g+1] = $jlogo;
+			$treelevel[$g+1] = $jlevel;
+			$g++;
+		}
+	}
+}
+?>
+<hr style="clear:both" />
+<form method="post" action="<?php if(isset($_GET['editalb'])&&$_GET['editalb']>0){ ?>cms.php?go=<?=$_GET['go']?>&alb=<?=$_GET['alb']?><?php } ?>" enctype="multipart/form-data" style="float:right;width:35%;text-align:left;border-left:3px ridge #999;padding-left:2%">
+	<br/>
+	Изображение:<br/>
+	<?php if(isset($_GET['editalb']) && $_GET['editalb']>0){ ?>
+	<img height="40" style="vertical-align:middle" src="/<?=mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_photoalb WHERE id=".$_GET['editalb']), 0)?>" /><br/>
+	<?php } ?>
+	<label style="display:block;padding:5px;margin:5px 0;border:1px solid #011393;width:75%"><input type="file" name="newalb[logo]" class="newalb-logo" /></label><br/>
+	Вложенность:<br/>
+	<select name="newalb[p_id]" style="display:block;border:1px solid #011393;border-radius:3px;padding:1px 5px;width:75%">
+		<option value="0">не подчиненный</option>
+		<?php
+		for($i=0;$i<$count;$i++){
+			?>
+		<option value="<?=$treeid[$i]?>"<?php if(isset($_GET['editalb']) && $_GET['editalb']==$treeid[$i]){ ?> selected="selected"<?php } ?>><?php for($m=0;$m<$treelevel[$i];$m++){ ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php } echo $treename[$i]; ?></option>
+			<?php
+		}
+		?>
+	</select><br/>
+	Название:<br/>
+	<input type="text" name="newalb[name]" class="newalb-name" <?php if(isset($_GET['editalb']) && $_GET['editalb']>0){ ?>value="<?=mysql_result(mysql_query("SELECT name FROM ".MySQLprefix."_photoalb WHERE id=".$_GET['editalb']), 0)?>" <?php } ?> style="display:block;padding:5px;margin:5px 0;border:1px solid #011393;width:75%" /><br/>
+	<input type="submit" style="display:block;float:left;background:#011393;color:#fff;border:1px solid #fff;border-radius:0 0 15px 0;padding:10px;cursor:pointer" value="<?php if(isset($_GET['editalb']) && $_GET['editalb']>0){ ?>Изменить Альбом<?php }else{ ?>Создать Альбом<?php } ?>" />
+	<?php if(isset($_GET['editalb']) && $_GET['editalb']>0){ ?><input type="hidden" name="alb" value="<?php echo $_GET['editalb']; ?>" /><?php } ?>
+	<br/>
+	<br/>
+	<br/>
+	<br/>
+</form>
+<ul style="width:55%;overflow:hidden;float:left">
+	<?php
+	$_GET['alb'] = (!isset($_GET['alb']) || $_GET['alb']<0)?0:$_GET['alb'];
+	for($i=0;$i<$count;$i++){
+		?>
+	<li style="list-style:none;display:block;width:100%;overflow:hidden;margin:10px 0" id="<?=$treeid[$i]?>">
+		<div style="display:block;width:154px;overflow:hidden;float:left">
+			<img src="../<?=$treelogo[$i]?>" style="display:block;width:154px" />
+			<span><?=$treename[$i]?></span>
+		</div>
+		<a href="cms.php?go=<?=$_GET['go']?>&alb=<?=$_GET['alb']?>&editalb=<?=$treeid[$i]?>" style="color:green"><img alt="редактировать" src="img/edit.gif" width="16" style="vertical-align:-3px;" /></a>
+		<br/>
+		<br/>
+		<a href="cms.php?go=<?=$_GET['go']?>&alb=<?=$_GET['alb']?>&del_alb=<?=$treeid[$i]?>" style="color:red" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" style="vertical-align:-3px;" /></a>
+		<br/>
+		<br/>
+		<a title="вверх" style="text-decoration:none;color:#000;margin:0 5px" class="moveit_l" href="cms.php?go=<?=$_GET['go']?>&id=<?=$treeid[$i]?>&p_id=<?=$treepid[$i]?>&aaction=up<?=($_GET['alb']>0?'&alb='.$_GET['alb']:'')?>">&#8593;</a>
+		<br/>
+		<a title="вниз" style="text-decoration:none;color:#000;margin:0 5px;" class="moveit_r" href="cms.php?go=<?=$_GET['go']?>&id=<?=$treeid[$i]?>&p_id=<?=$treepid[$i]?>&aaction=dwn<?=($_GET['alb']>0?'&alb='.$_GET['alb']:'')?>">&#8595;</a>
+		<?php
+		if($treelevel[$i+1] > $treelevel[$i])
+			echo '<ul style="width:100%;clear:both;overflow:hidden">';
+		if($treelevel[$i+1] == $treelevel[$i])
+			echo '</li>';
+		if($treelevel[$i+1] < $treelevel[$i]){
+			echo '</li>';
+			for($m=1;$m<=$treelevel[$i]-$treelevel[$i+1];$m++)
+				echo '</ul></li>';
+		}
+	}
+	?>
+</ul>
+<hr style="clear:both" />
+</div>
+<div style="width:980px;padding:10px;margin:20px auto 0 auto;overflow:hidden;background:#fff;background:rgba(255,255,255,0.5);border-radius:10px">
+<form method="get" action="" style="width:33%;float:left">
+	<br/>
+	<b>Текущий альбом :</b>
+	<select onchange="form.submit()" name="alb">
+		<option value="0"<?php if(!isset($_GET['alb']) || $_GET['alb']==0){ ?> selected="selected"<?php } ?>>не задан</option>
+		<?php
+		for($i=0;$i<$count;$i++){
+			?>
+		<option value="<?=$treeid[$i]?>"<?php if(isset($_GET['alb']) && $_GET['alb']==$treeid[$i]){ ?> selected="selected"<?php } ?>><?php for($m=0;$m<$treelevel[$i];$m++){ ?> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php } echo $treename[$i]; ?></option>
+			<?php
+		}
+		?>
+	</select>
+	<input type="hidden" name="go" value="<?=$_GET['go']?>" />
+	<br/>
+	<br/>
+</form>
+<form method="post" action="" enctype="multipart/form-data" style="float:right;width:67%;text-align:center">
+	<br/>
+	Добавить фото в этот альбом : 
+	<input type="file" name="newphoto" />
+	<br/>
+	Название: 
+	<input type="text" name="newphoto_name" /> 
+	<input type="submit" style="display:block;float:right;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 0 1px 1px;border-radius:15px 0 0 15px;padding:10px;cursor:pointer;margin:-10px 0 0 0" value="Добавить" />
+	<input type="hidden" name="alb1" value="<?=$_GET['alb']?>" />
+	<br/>
+	<br/>
+</form>
+<hr style="clear:both;" />
+<form method="post" action="" class="act-formm">
+	С отмеченными: 
+	<select name="action" onchange="chekselekt()">
+		<option value="">выбрать действие</option>
+		<option value="transfer">Переместить в альбом:</option>
+		<option value="del">Удалить</option>
+	</select> 
+	<hr/>
+	<ul>
+	<?php
+	$result = mysql_query("SELECT name, logo, p_id, id FROM ".MySQLprefix."_photogal WHERE p_id=".$_GET['alb']." ORDER BY sort_id ASC");
+	$rr = 0;
+	if($result && mysql_num_rows($result)>0)
+		while($slide = mysql_fetch_assoc($result)){
+			$rr++;
+			?>
+	<li id="pht<?=$slide['id']?>" style="list-style:none;display:block;width:175px;overflow:hidden;float:left;margin:0 10px 10px 0">
+		<div style="display:block;width:154px;overflow:hidden;float:left;">
+			<img src="../<?=$slide['logo']?>" style="display:block;width:154px;float:left;" />
+			<?php if(isset($_GET['editpht']) && $_GET['editpht']==$slide['id']){ ?>
+			<form action="cms.php?go=<?=$_GET['go']?>&alb=<?=$_GET['alb']?>" method="post">
+				<input type="hidden" name="id" value="<?=$slide['id']?>" />
+				<input style="width:120px;padding:0;margin:5px 0 0 0;border:0" type="text" name="newphtname" value="<?=$slide['name']?>" />
+				<input type="submit" name="saveit" value="OK" style="width:32px;padding:0;margin:5px 0 0 0;border:0" />
+			</form>
+			<?php }else{ ?>
+			<span><?=$slide['name']?></span>
+			<?php } ?>
+		</div>
+		<input class="select_id" type="checkbox" name="select[]" value="<?=$slide['id']?>" />
+		<br/>
+		<a href="cms.php?go=<?=$_GET['go']?>&alb=<?=$_GET['alb']?>&editpht=<?=$slide['id']?>#pht<?=$slide['id']?>" style="color:green"><img alt="редактировать" src="img/edit.gif" width="16" style="vertical-align:-3px;" /></a>
+		<br/>
+		<br/>
+		<a href="cms.php?go=<?=$_GET['go']?>&alb=<?=$_GET['alb']?>&del_pht=<?=$slide['id']?>" style="color:red;" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" style="vertical-align:-3px;" /></a>
+		<br/>
+		<br/>
+		<a title="вверх" style="text-decoration:none;color:#000;margin:0 5px" class="moveit_l" href="cms.php?go=<?=$_GET['go']?>&id=<?=$slide['id']?>&p_id=<?=$slide['p_id']?>&action=up<?=($_GET['alb']>0?'&alb='.$_GET['alb']:'')?>">&#8593;</a>
+		<br/>
+		<a title="вниз" style="text-decoration:none;color:#000;margin:0 5px;" class="moveit_r" href="cms.php?go=<?=$_GET['go']?>&id=<?=$slide['id']?>&p_id=<?=$slide['p_id']?>&action=dwn<?=($_GET['alb']>0?'&alb='.$_GET['alb']:'')?>">&#8595;</a>
+	</li>
+			<?php
+			if($rr%5==0){
+				?>
+	<br style="clear:both" />
+				<?php
+			}
+		}
+	?>
+	</ul>
+</form>
+<script>
+	<!--
+	function chekselekt(){
+		if($('.act-formm select').val()=='transfer'){
+			$('.act-formm select').after('<select name="newcat"><option value="0">не выбран</option><?php $catss=mysql_query("SELECT name, id FROM ".MySQLprefix."_photoalb ORDER BY name"); while($cats = mysql_fetch_assoc($catss)){ ?><option value="<?=$cats['id']?>"><?=$cats['name']?></option><?php } ?></select><span class="del-or-not"> <a style="cursor:pointer;color:green">Применить</a></span>');
+			$('.del-or-not a').click(function(){
+				$('.act-formm').submit();
+			});
+		}else if($('.act-formm select').val()=='del'){
+			$('.act-formm select').after('<span class="del-or-not">Подтвердите удаление: <a style="cursor:pointer;color:red">удалить</a></span>');
+			$('.del-or-not').click(function(){
+				$('.act-formm').submit();
+			});
+		}else{
+			$('.del-or-not').remove();
+			$('.act-formm').submit();
+		}	
+	}
+	//-->
+</script>

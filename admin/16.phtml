@@ -1,0 +1,167 @@
+<?php
+if(isset($_GET['action'])){
+	foreach($_GET['select'] AS $city => $select){
+		switch($_GET['action']){
+			case 'recieved':
+				$q = "UPDATE ".$city."_orders SET status=3 WHERE id=";
+			break;
+			case 'notdone':
+				$q = "UPDATE ".$city."_orders SET status=0 WHERE id=";
+			break;
+			case 'done':
+				$q = "UPDATE ".$city."_orders SET status=2 WHERE id=";
+			break;
+			case 'payed':
+				$q = "UPDATE ".$city."_orders SET payed=1 WHERE id=";
+			break;
+			case 'npayed':
+				$q = "UPDATE ".$city."_orders SET payed=0 WHERE id=";
+			break;
+			case 'del':
+				$q = "DELETE FROM ".$city."_orders WHERE id=";
+			break;
+		}
+		foreach($select AS $id)
+			$upd = mysql_query($q.$id);
+	}
+}
+if($_GET['del2'] == 1){
+  $result = mysql_query("DELETE FROM ".MySQLprefix."_orders WHERE id=".$_GET['id']);
+  ?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Заказ удален</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+  <?php
+}
+?>
+	<script>
+		<!--
+		function chekselekt(){
+			if($('.act-formm select').val()=='del'){
+				$('.act-formm select').after('<span class="del-or-not">Подтвердите удаление: <a style="cursor:pointer;color:red">удалить</a></span>');
+				$('.del-or-not').click(function(){
+					$('.act-formm').submit();
+				});
+			}else{
+				$('.del-or-not').remove();
+				$('.act-formm').submit();
+			}	
+		}
+		function chekselekt2(){
+			$('.act-formm').submit();	
+		}
+		$(document).ready(function(){
+			$('input[name="select_all"]').change(function(){
+				if($(this).attr('checked')){
+					$('.select_id').each(function(){
+						$(this).attr('checked', 'checked');
+					});
+				}else{
+					$('.select_id').each(function(){
+						$(this).removeAttr('checked');
+					});
+				}
+			});
+		});
+		//-->
+	</script>
+	<form method="get" action="" class="act-formm">
+		<input type="hidden" name="go" value="<?=$_GET['go']?>" />
+		<table width="100%">
+			<tr>
+				<td colspan="<?php if($_GET['user']==''){ ?>5<?php }else{ ?>4<?php } ?>">
+					<hr/>
+					С отмеченными: 
+					<select name="action" onchange="chekselekt()">
+						<option value="">выбрать действие</option>
+						<option value="recieved">пометить "Получен"</option>
+						<option value="done">пометить "Обработан"</option>
+						<option value="notdone">пометить "Новый"</option>
+						<option value="del">Удалить заказ</option>
+						<option value="payed">пометить "Оплачен"</option>
+						<option value="npayed">снять "Оплачен"</option>
+					</select>
+					<hr/>
+				</td>
+			</tr>
+			<tr>
+				<td><input type="checkbox" name="select_all" value="1" /></td>
+				<td><b>№</b></td>
+				<?php if($_GET['user']==''){ ?><td><b>Заказчик</b></td><?php } ?>
+				<td width="50%"><b>Состав заказа</b></td>
+				<td>&nbsp;</td>
+			</tr>
+<?php
+$result = mysql_query("SELECT * FROM ".MySQLprefix."_orders ORDER BY data DESC");
+$o = 0;
+if ($result && mysql_num_rows($result)>0)
+	while ($row = mysql_fetch_assoc($result)) {
+		$carts = mysql_query("SELECT ".MySQLprefix."_cart.id AS id, ".MySQLprefix."_goods.price AS price, ".MySQLprefix."_cart.price AS price2, ".MySQLprefix."_cart.kol AS kol, ".MySQLprefix."_cart.mods, ".MySQLprefix."_cart.good AS good, ".MySQLprefix."_goods.name AS title, ".MySQLprefix."_goods.logo AS pics FROM ".MySQLprefix."_cart, ".MySQLprefix."_goods WHERE ".MySQLprefix."_cart.status='".$row['id']."' AND ".MySQLprefix."_cart.good=".MySQLprefix."_goods.id ORDER BY good ASC");
+		$in_cart = '';
+		if($carts && mysql_num_rows($carts)>0){
+			$in_cart .= '<table>';
+			$sum = 0;
+			$inN = 0;
+			while($cart = mysql_fetch_assoc($carts)){
+				$inN++;
+				$in_cart .= '<tr><td valign="top">'.$inN.'</td><td align="left">';
+				$in_cart .= '<a href="/goods/'.$cart['good'].'/" target="_blank">'.$cart['title'].'</a>';
+				if(strlen($cart['mods'])>0)
+					$in_cart .= '<br/><b>'.$cart['mods'].'</b>';
+				$in_cart .= '<br/>('.$cart['kol'].' шт. x '.(strlen($cart['price2'])>0?$cart['price2']:$cart['price']).' = '.($cart['kol']*(strlen($cart['price2'])>0?$cart['price2']:$cart['price'])).' р.)</td></tr>';
+				$sum += $cart['kol']*(strlen($cart['price2'])>0?$cart['price2']:$cart['price']);
+			}
+			$in_cart .= '</table>';
+		}
+		$orders[date('Ymd',strtotime($row['data']))][$o] = '
+			<tr>
+				<td colspan="5"><hr/></td>
+			</tr>
+			<tr>
+				<td valign="top"><input class="select_id" type="checkbox" name="select['.MySQLprefix.'][]" value="'.$row['id'].'" /></td>
+				<td valign="top">
+					<b>Заказ №'.$row['id'].'</b> ('.date('d.m.Y',strtotime($row['data'])).')
+					<br/>
+					<b>'.$sum.' р.</b>
+				</td>
+				<td valign="top">
+					'.$row['customer_name'].' 
+					('.$row['customer_phone'].', <a href="mailto:'.$row['customer_email'].'">'.$row['customer_email'].'</a>)
+					'.(strlen($row['customer_addr'])>0?'<br/>'.$row['customer_addr']:'').'
+					'.(strlen($row['customer_coment'])>0?'<br/>'.$row['customer_coment']:'').'
+				</td>
+				<td valign="top">'.$in_cart.'</td>
+				<td valign="top">
+					';
+					switch($row['status']){
+						case 3:
+							$orders[date('Ymd',strtotime($row['data']))][$o] .= '<b style="color:black">Получен</b>';
+						break;
+						case 2:
+							$orders[date('Ymd',strtotime($row['data']))][$o] .= '<b style="color:blue">Обработан</b>';
+						break;
+						case 0:
+							$orders[date('Ymd',strtotime($row['data']))][$o] .= '<b style="color:gray">Новый</b>';
+						break;
+					}
+					if($row['payed']==1)
+						$orders[date('Ymd',strtotime($row['data']))][$o] .= '<br/><b style="color:green">Оплачен</b>';
+					else
+						$orders[date('Ymd',strtotime($row['data']))][$o] .= '<br/><small style="color:grey">ожидает оплаты</small>';
+					$orders[date('Ymd',strtotime($row['data']))][$o] .= '
+				</td>
+			</tr>
+	  ';
+	  $o++;
+	}
+	krsort($orders);
+	foreach($orders AS $d => $ar)
+		echo implode('',$ar);
+	?>
+</table></form>

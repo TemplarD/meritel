@@ -1,0 +1,424 @@
+<?php
+function hex2rgb($color) {
+	if( !preg_match('/^#?(?P<color>\w{3}|\w{6})$/', $color, $match) ) return array(0, 0, 0);
+	$mod = strlen($match['color'])/3;
+	foreach( str_split($match['color'], $mod) as $k=>$v )
+		$rgb[$k] = hexdec( $mod==2 ? $v : $v.$v );
+	return $rgb;    
+}
+if(isset($_GET['del']) && $_GET['del']=='fon')
+	$q = mysql_query("UPDATE ".MySQLprefix."_additional SET text='' WHERE id=13");
+if(isset($_POST['update'])){
+	$res1 = mysql_query("UPDATE ".MySQLprefix."_admins SET first_name='".$_POST['adds'][0]."', password='".md5($_POST['adds'][0])."' WHERE id='".$_SESSION['u_id']."'");
+	if($_SESSION['u_id'] == -1){
+		if($_POST['adds'][9]!=1)
+			$_POST['adds'][9] = 0;
+		if($_POST['adds'][27]!=1)
+			$_POST['adds'][27] = 0;
+		if($_POST['adds'][28]!=1)
+			$_POST['adds'][28] = 0;
+		if($_POST['adds'][29]!=1)
+			$_POST['adds'][29] = 0;
+		if($_POST['adds'][30]!=1)
+			$_POST['adds'][30] = 0;
+		if($_POST['adds'][31]!=1)
+			$_POST['adds'][31] = 0;
+		if($_POST['adds'][32]!=1)
+			$_POST['adds'][32] = 0;
+		if($_POST['adds'][33]!=1)
+			$_POST['adds'][33] = 0;
+		if($_POST['adds'][34]!=1)
+			$_POST['adds'][34] = 0;
+		if($_POST['adds'][38]!=1)
+			$_POST['adds'][38] = 0;
+		if($_POST['adds'][40]!=1)
+			$_POST['adds'][40] = 0;
+		if($_POST['adds'][44]!=1)
+			$_POST['adds'][44] = 0;
+		if($_POST['adds'][45]!=1)
+			$_POST['adds'][45] = 0;
+		if($_POST['adds'][47]!=1)
+			$_POST['adds'][47] = 0;
+		if($_POST['adds'][46]!=1)
+			$_POST['adds'][46] = 0;
+		if($_POST['adds'][48]!=1)
+			$_POST['adds'][48] = 0;
+		if($_POST['adds'][48]!=1)
+			$_POST['adds'][48] = 0;
+		if($_POST['adds'][49]!=1)
+			$_POST['adds'][49] = 0;
+		if($_POST['adds'][53]!=1)
+			$_POST['adds'][53] = 0;
+		if($_POST['adds'][54]!=1)
+			$_POST['adds'][54] = 0;
+		if($_POST['adds'][57]!=1)
+			$_POST['adds'][57] = 0;
+		if($_POST['adds'][58]!=1)
+			$_POST['adds'][58] = 0;
+		if($_POST['adds'][59]!=1)
+			$_POST['adds'][59] = 0;
+		if($_POST['adds'][60]!=1)
+			$_POST['adds'][60] = 0;
+		if($_POST['adds'][62]!=1)
+			$_POST['adds'][62] = 0;
+		if($_POST['adds'][63]!=1)
+			$_POST['adds'][63] = 0;
+		if($_POST['adds'][64]!=1)
+			$_POST['adds'][64] = 0;
+		if($_POST['adds'][65]!=1)
+			$_POST['adds'][65] = 0;
+		if($_POST['adds'][66]!=1)
+			$_POST['adds'][66] = 0;
+		if($_POST['adds'][68]!=1)
+			$_POST['adds'][68] = 0;
+		if(count($_FILES["fav"]["name"])>0)
+			foreach($_FILES["fav"]["name"] AS $id => $val)
+				if(strlen($_FILES["fav"]["name"][$id])>0){
+					$ran = round(rand(1000000000, 9999999999), 0);
+					$n_type = substr($_FILES["fav"]["name"][$id], strrpos($_FILES["fav"]["name"][$id], '.'), strlen($_FILES["fav"]["name"][$id])-strrpos($_FILES["fav"]["name"][$id], '.'));
+					if(move_uploaded_file($_FILES["fav"]["tmp_name"][$id], "uploads/".$ran.$n_type))
+						$_POST['adds'][$id=='png'?6:5] = '<link rel="icon" href="/admin/uploads/'.$ran.$n_type.'" type="image/'.$id.'" />';
+				}
+		if(strlen($_FILES["art"]["name"])>0){
+			$ran = round(rand(1000000000, 9999999999), 0);
+			$n_type = substr($_FILES["art"]["name"], strrpos($_FILES["art"]["name"], '.'), strlen($_FILES["art"]["name"])-strrpos($_FILES["art"]["name"], '.'));
+			if(move_uploaded_file($_FILES["art"]["tmp_name"], "uploads/".$ran.$n_type))
+				$_POST['adds'][37] = 'admin/uploads/'.$ran.$n_type;
+		}
+		if(strlen($_FILES["logo"]["name"])>0){
+			$ran = round(rand(1000000000, 9999999999), 0);
+			$n_type = substr($_FILES["logo"]["name"], strrpos($_FILES["logo"]["name"], '.'), strlen($_FILES["logo"]["name"])-strrpos($_FILES["logo"]["name"], '.'));
+			if(move_uploaded_file($_FILES["logo"]["tmp_name"], "uploads/".$ran.$n_type))
+				$_POST['adds'][4] = 'admin/uploads/'.$ran.$n_type;
+		}
+		if(strlen($_FILES["fon"]["name"])>0){
+			$ran = round(rand(1000000000, 9999999999), 0);
+			$n_type = substr($_FILES["fon"]["name"], strrpos($_FILES["fon"]["name"], '.'), strlen($_FILES["fon"]["name"])-strrpos($_FILES["fon"]["name"], '.'));
+			if(move_uploaded_file($_FILES["fon"]["tmp_name"], "uploads/".$ran.$n_type))
+				$_POST['adds'][12] = 'admin/uploads/'.$ran.$n_type;
+		}
+		if(strlen($_FILES["call"]["name"])>0){
+			$ran = round(rand(1000000000, 9999999999), 0);
+			$n_type = substr($_FILES["call"]["name"], strrpos($_FILES["call"]["name"], '.'), strlen($_FILES["call"]["name"])-strrpos($_FILES["call"]["name"], '.'));
+			if(move_uploaded_file($_FILES["call"]["tmp_name"], "uploads/".$ran.$n_type))
+				$_POST['adds'][26] = 'admin/uploads/'.$ran.$n_type;
+		}
+		if(strlen($_FILES["water"]["name"])>0){
+			$ran = round(rand(1000000000, 9999999999), 0);
+			$n_type = substr($_FILES["water"]["name"], strrpos($_FILES["water"]["name"], '.'), strlen($_FILES["water"]["name"])-strrpos($_FILES["water"]["name"], '.'));
+			if(move_uploaded_file($_FILES["water"]["tmp_name"], "uploads/".$ran.$n_type))
+				$_POST['adds'][39] = 'admin/uploads/'.$ran.$n_type;
+		}
+	}
+	foreach($_POST['adds'] AS $w => $text)
+		$q = mysql_query("UPDATE ".MySQLprefix."_additional SET text='".$text."' WHERE id=".($w+1));
+}
+$adds = mysql_query("SELECT * FROM ".MySQLprefix."_additional ORDER BY id");
+if($adds)
+  if(mysql_num_rows($adds)>0){
+    ?>
+	<form action="cms.php?go=<?=$_GET['go']?>" method="post" enctype="multipart/form-data">
+	<?php
+	while($add = mysql_fetch_assoc($adds))
+		$additional[$add['id']-1] = $add['text'];
+	$additional[0] = mysql_result(mysql_query("SELECT first_name FROM ".MySQLprefix."_admins WHERE id='".$_SESSION['u_id']."'"),0);
+	?>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px"><b>Пароль</b> на вход:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<input type="text" name="adds[0]" size="20" value="<?=$additional[0]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Email для заявок:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<input type="text" name="adds[10]" size="20" value="<?=$additional[10]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+			</div>
+		</div><br/><hr/><br>
+		<?php if($_SESSION['u_id'] == -1){ ?>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Логотип:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<input name="adds[4]" type="hidden" value="<?=$additional[4]?>" />
+				<img src="../<?=$additional[4]?>" /> Заменить: <input class="icons" type="file" name="logo" />
+			</div>
+		</div><br/><br>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Название сайта:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<textarea name="adds[1]" cols="62" rows="1" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$additional[1]?></textarea>
+			</div>
+		</div><br/><br>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Слоган:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<textarea name="adds[2]" cols="62" rows="2" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$additional[2]?></textarea>
+			</div>
+		</div><br/><br>
+		<?php } ?>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Телефоны:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<textarea name="adds[3]" cols="62" rows="2" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$additional[3]?></textarea>
+			</div>
+		</div>
+		<?php if($_SESSION['u_id'] == -1){ ?>
+		<br/><hr/><br>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Icon .ico:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<textarea name="adds[5]" cols="62" rows="1" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$additional[5]?></textarea>
+				<br/>
+				Заменить: <input class="icons" type="file" name="fav[x-icon]" />
+			</div>
+		</div><br/><br>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Icon .png:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<textarea name="adds[6]" cols="62" rows="1" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$additional[6]?></textarea>
+				<br/>
+				Заменить: <input class="icons" type="file" name="fav[png]" />
+			</div>
+		</div><br/><hr/><br>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Текст в футере слева:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<textarea name="adds[11]" cols="62" rows="3" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$additional[11]?></textarea>
+			</div>
+		</div><br/><br>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Счетчики в футере справа:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<textarea name="adds[13]" cols="62" rows="3" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$additional[13]?></textarea>
+			</div>
+		</div><br/><br>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">
+				Обратные ссылки (с новой строки):
+				<br/>
+				<input type="checkbox" name="adds[34]" value="1" <?php if($additional[34]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> не размещать копирайт
+			</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<textarea name="adds[14]" cols="62" rows="3" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$additional[14]?></textarea>
+				<br/>
+				Картинка (не более 44х44): <?php if(strlen($additional[37])>0){ ?><img src="../<?php echo $additional[37]; ?>" style="vertical-align:middle" /> <?php } ?><input class="icons" type="file" name="art" />
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Фон сайта (цвет, картинка):</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[7]" size="7" value="<?=$additional[7]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="adds[63]" value="1" <?=($additional[63]==1?'checked':'')?> /> зафиксировать при прокрутке<br/><br/>
+				Картинка: <?php if(strlen($additional[12])>0){ ?><img src="../<?=$additional[12]?>" style="height:50px" /> - <a href="cms.php?go=<?=$_GET['go']?>&del=fon">удалить</a><br/><?php } ?>
+				<input class="icons" type="file" name="fon" />
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Цвет фона контента:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[8]" size="7" value="<?=$additional[8]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> | Цвет рамки
+				<input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[67]" size="7" value="<?=$additional[67]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Наименование левого меню:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<input type="text" name="adds[36]" size="20" value="<?=$additional[36]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Идентификатор группы ВКонтакте<br/>(не указан - не выводится):</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<input type="text" name="adds[55]" size="10" value="<?=$additional[55]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> вывести перед Новостями <input type="checkbox" value="1" name="adds[66]" <?php if($additional[66]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+			</div>
+		</div><br/><br>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Нижний левый блок<br/>(не заполнен - не выводится):</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<textarea id="editor2" name="adds[56]" cols="62" rows="3" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$additional[56]?></textarea>
+				<script type="text/javascript">
+					<!--
+					var ckeditor2 = CKEDITOR.replace("editor2");
+					AjexFileManager.init({returnTo: "ckeditor", editor: ckeditor2, skin: "light"});
+					//-->
+				</script>
+			</div>
+		</div><br/><br>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Тип верхнего меню:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<input type="radio" name="adds[35]" value="1" <?=($additional[35]==1?'checked':'')?> /> раздельное | <input type="radio" name="adds[35]" value="2" <?=($additional[35]==2?'checked':'')?> /> сплошное&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="adds[62]" value="1" <?=($additional[62]==1?'checked':'')?> /> фиксация при прокрутке
+			</div>
+		</div><br/><br>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Цвет ссылок в Меню:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<table>
+					<tr><td></td><td>Все</td><td>:Ховер</td><td>Текущая</td></tr>
+					<tr>
+						<td>цвет текста</td>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[24]" size="7" value="<?=$additional[24]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[15]" size="7" value="<?=$additional[15]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[16]" size="7" value="<?=$additional[16]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+					</tr>
+					<tr>
+						<td>цвет фона</td>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[17]" size="7" value="<?=$additional[17]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[18]" size="7" value="<?=$additional[18]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[23]" size="7" value="<?=$additional[23]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+					</tr>
+				</table>
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Оформление Левого меню:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<table>
+					<tr>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[19]" size="7" value="<?=$additional[19]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[20]" size="7" value="<?=$additional[20]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[21]" size="7" value="<?=$additional[21]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[42]" size="7" value="<?=$additional[42]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+						<td><input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[43]" size="7" value="<?=$additional[43]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /></td>
+					</tr>
+				</table>
+				<br/>
+				сделать выпадающее левое меню: <input type="checkbox" value="1" name="adds[58]" <?php if($additional[58]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Цвет фона кнопок "Заказать звонок", "Заказать" ...:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<input onkeyup="colorMe(this)" onchange="colorMe(this)" class="colorme" type="text" name="adds[25]" size="7" value="<?=$additional[25]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+				<br/>
+				<br/>
+				<input type="checkbox" value="1" name="adds[53]" <?php if($additional[53]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> цвет текста в футере сделать черным !
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Значок телефона вверху:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				Картинка: <?php if(strlen($additional[26])>0){ ?><img src="../<?=$additional[26]?>" style="height:42px" /><br/><?php } ?>
+				<input class="icons" type="file" name="call" />
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Cлайдшоу:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				Высота изображения: <input type="text" name="adds[22]" size="7" value="<?php echo $additional[22]; ?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> Частота смены кадров: <input type="text" name="adds[41]" size="7" value="<?php echo $additional[41]; ?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> мс.
+				<br/>
+				Ширина: <input type="radio" value="1" name="adds[9]" <?php if($additional[9]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> на всю ширину | <input type="radio" value="0" name="adds[9]" <?php if($additional[9]==0){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> в правой колонке
+				<br/>
+				Расположить перед меню (Если "на всю ширину"!!!): <input type="checkbox" value="1" name="adds[27]" <?php if($additional[27]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Внешний вид:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				Скрыть горизонтальное меню: <input type="checkbox" value="1" name="adds[29]" <?php if($additional[29]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Скрыть слайдер: <input type="checkbox" value="1" name="adds[30]" <?php if($additional[30]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Скрыть левую колонку: <input type="checkbox" value="1" name="adds[28]" <?php if($additional[28]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Скрыть Новости: <input type="checkbox" value="1" name="adds[57]" <?php if($additional[57]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Скрыть Соц.сети: <input type="checkbox" value="1" name="adds[33]" <?php if($additional[33]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Скрыть кнопку "Заказать звонок": <input type="checkbox" value="1" name="adds[31]" <?php if($additional[31]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Скрыть кнопку "Сделать заявку": <input type="checkbox" value="1" name="adds[32]" <?php if($additional[32]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Не использовать модуль "Города": <input type="checkbox" value="1" name="adds[40]" <?php if($additional[40]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Скрыть "БЛОК ТОВАРОВ" на главной: <input type="checkbox" value="1" name="adds[44]" <?php if($additional[44]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Расположить "БЛОК ТОВАРОВ" перед текстом: <input type="checkbox" value="1" name="adds[48]" <?php if($additional[48]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Скрыть "ЦЕНУ" продукции: <input type="checkbox" value="1" name="adds[46]" <?php if($additional[46]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Скрыть кнопку "ЗАКАЗАТЬ" у продукции: <input type="checkbox" value="1" name="adds[45]" <?php if($additional[45]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Использовать БРЕНДЫ: <input type="checkbox" value="1" name="adds[64]" <?php if($additional[64]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Отключить "Корзину": <input type="checkbox" value="1" name="adds[49]" <?php if($additional[49]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Использовать "МОДИФИКАЦИИ" товаров: <input type="checkbox" value="1" name="adds[47]" <?php if($additional[47]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Отображать "ПОИСК" по сайту: <input type="checkbox" value="1" name="adds[59]" <?php if($additional[59]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Отображать "Импорт 1С": <input type="checkbox" value="1" name="adds[65]" <?php if($additional[65]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+				<br/>
+				Отображать "Наши партнеры" на главной: <input type="checkbox" value="1" name="adds[60]" <?php if($additional[60]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> <input type="text" name="adds[61]" size="20" value="<?=$additional[61]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+				<br/>
+				Активировать "Адаптивный дизайн": <input type="checkbox" value="1" name="adds[68]" <?php if($additional[68]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" />
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px"><input type="checkbox" value="1" name="adds[54]" <?php if($additional[54]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> Использовать ROBOКАССУ:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				Настройте расчеты через Робокассу тут при создании магазина:
+				<br/>
+				<a href="https://partner.robokassa.ru/Shops/Add" target="_blank">https://partner.robokassa.ru/Shops/Add</a>
+				<br/>
+				<br/>
+				<input type="text" name="adds[50]" size="24" value="<?=$additional[50]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> (Идентификатор магазина)
+				<br/>
+				<br/>
+				<input type="text" name="adds[51]" size="24" value="<?=$additional[51]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> (Пароль #1)
+				<br/>
+				<br/>
+				<input type="text" name="adds[52]" size="24" value="<?=$additional[52]?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> (Пароль #2)
+				<br/>
+				<br/>
+				Алгоритм расчета хеша оставить <b>MD5</b>
+				<br/>
+				Result Url: <input style="border:0;background:none;font-weight:bold;width:460px" onclick="this.select()" value="http://<?=$_SERVER['SERVER_NAME']?>/admin/robopayornot.php" />
+				<br/>
+				Success Url и Fail Url установите <input style="border:0;background:none;font-weight:bold;width:330px" onclick="this.select()" value="http://<?=$_SERVER['SERVER_NAME']?>/" />
+				<br/>
+				Метод отсылки данных по Result Url и другим <b>POST</b>
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden;">
+			<label style="display:block;width:44%;float:left;text-align:right;line-height:20px">Использовать водяной знак для картинок:</label>
+			<div style="display:block;width:54%;float:right;text-align:left;">
+				<input type="checkbox" value="1" name="adds[38]" <?php if($additional[38]==1){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> (Картинка: <?php if(strlen($additional[39])>0){ ?><img src="../<?=$additional[39]?>" style="height:30px" /><?php } ?><input class="icons" type="file" name="water" />)
+			</div>
+		</div>
+		<?php } ?>
+		<input type="submit" name="update" value="Сохранить" style="position:fixed;left:0;top:50%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" />
+	</form>
+	<?php
+  }
+?>
+<?php if($_SESSION['u_id'] == -1){ ?>
+<a style="position:fixed;left:0;top:80%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;text-decoration:none;" href="dump.php" target="_blank">DB -> gZIP</a>
+<?php } ?>
+<script type="text/javascript">
+	<!--
+	function hexToRgb(hex) {
+		var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+		hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+			return r + r + g + g + b + b;
+		});
+		var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+		return result ? {
+			r: parseInt(result[1], 16),
+			g: parseInt(result[2], 16),
+			b: parseInt(result[3], 16)
+		} : null;
+	}
+	function colorMe(obj){
+		obj.style.background = obj.value;
+		obj.style.color = 'rgb('+(256-hexToRgb(obj.value).r)+', '+(256-hexToRgb(obj.value).g)+', '+(256-hexToRgb(obj.value).b)+')';
+	}
+	$(document).ready(function(){
+		$('.colorme').keyup(function(){
+			colorMe($(this));
+		});
+		$('.colorme').each(function(){
+			$(this).change();
+		});
+	});
+	//-->
+</script>

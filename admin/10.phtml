@@ -1,0 +1,49 @@
+﻿<?php
+if ($_GET['del2'] == 1 && $_GET['id']!=1)
+  $result = mysql_query("DELETE FROM ".MySQLprefix."_admins WHERE id=".$_GET['id']);
+if ($_POST['nlogin'] or $_POST['npassword'])
+	if ($_POST['todo'] == 1)
+		$result = mysql_query("UPDATE ".MySQLprefix."_admins SET login='$_POST[nlogin]', password='".md5($_POST[npassword])."', first_name='$_POST[npassword]', last_name='".implode("|", $_POST[pages])."', access_rules='".implode("|", $_POST[rules])."' WHERE id='$_POST[nid]'");
+	else
+		$result = mysql_query("INSERT INTO ".MySQLprefix."_admins (login, password, first_name, last_name, access_rules) VALUES ('".$_POST[nlogin]."', '".md5($_POST[npassword])."', '".$_POST[npassword]."', '".implode("|", $_POST[pages])."', '".implode("|", $_POST[rules])."')");
+?>
+<table style="margin:0 auto;" width=1000 cellspacing=0 cellpadding=0 border=0>
+  <tr>
+    <td>
+	  <ul class="pages_ul">
+	  <?php
+	  $users = mysql_query("SELECT id, login, first_name FROM ".MySQLprefix."_admins WHERE id>1");
+	  if(mysql_num_rows($users)>0)
+	    while($user = mysql_fetch_assoc($users)){
+		  echo '<li><b>'.$user['login'].'</b> <a href="cms.php?go='.$_GET['go'].'&amp;edit=1&amp;id='.$user['id'].'#down" style="color:green;"><img alt="редактировать" src="img/edit.gif" width="16" style="vertical-align:-3px;" /></a> ';
+		  if (!$_GET['del'])
+		    echo '<a href="cms.php?go='.$_GET['go'].'&del='.$user['id'].'#item'.$user['id'].'" style="color: red;" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" style="vertical-align:-3px;" /></a>';
+		  if ($_GET['del'] == $user['id'])
+		    echo 'Подтверждаете удаление: <a href="cms.php?go='.$_GET['go'].'&del2=1&id='.$_GET['del'].'" style="color: red;" title="Удаление">ДА</a> - <a href="cms.php?go='.$_GET['go'].'" style="color: black;" title="Отмена">НЕТ</a>';
+	    }
+	  ?>
+	  </ul>
+	</td>
+  </tr>
+</table>
+<a style="position:fixed;left:0;top:50%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" href='cms.php?go=<?php echo $_GET[go]; ?>&add=1'>Добавить</a>
+<?php if (($_GET['add'] == 1 or $_GET['edit'] == 1) && $_GET['id']!=1 ){ ?>
+<hr style="margin:30px auto;width:100%" />
+<form class="main-margin" action="cms.php?go=<?php echo $_GET[go]; ?>" method="post">
+  <p style="text-align:center;font-weight:bold"><?php if ($_GET[add] == 1){ ?>Добавление нового пользователя:<?php }else{$res31 = mysql_query("SELECT login, first_name, last_name, access_rules FROM ".MySQLprefix."_admins WHERE id=$_GET[id]");$row31 = mysql_fetch_assoc($res31); ?>Редактирование данных пользователя:<?php } ?></p>
+  <p style="text-align:center">Логин: <input type="text" name="nlogin" value="<?php if($_GET[edit]==1){echo $row31[login];} ?>" style="width:200px;" /> Пароль <input type="text" name="npassword" value="<?php if($_GET[edit]==1){echo $row31[first_name];} ?>" style="width:200px;" /> <input type="hidden" name="todo" value="<?php echo $_GET[edit]; ?>" /><input type="hidden" name="nid" value="<?php if($_GET[edit]==1){echo $_GET[id];} ?>" /><input style="position:fixed;left:0;top:35%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" type="submit" class="saveit" name="change_colors" value="Сохранить" /></p>
+  <?php
+  $page_accepted = explode("|", $row31[last_name]);
+  $rules_accepted = explode("|", $row31[access_rules]);
+  ?>
+<p style="text-align:center;font-weight:bold">Отметьте галочками страницы, доступ к которым необходимо предоставить</p>
+<table style="margin:0 auto;" width="100%" cellspacing="0" cellpadding="0" border="0">
+  <tr>
+  <?php foreach($pages AS $pid => $ptitle){ ?>
+    <td align="center"><?php echo $ptitle; ?><br/><input type="checkbox" name="pages[]" value="<?php echo $pid; ?>"<?php $accepted=0;for($p=0;$p<count($page_accepted);$p++){if($page_accepted[$p]==$pid){$accepted=1;}}if($accepted==1){ ?> checked="checked"<?php } ?> /></td>
+  <?php } ?>
+  </tr>
+</table>
+</form>
+<hr style="margin:30px auto;width:100%;" />
+<?php } ?>

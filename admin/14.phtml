@@ -1,0 +1,593 @@
+<?php
+if(isset($_POST['action'])){
+	foreach($_POST['price_al'] AS $id => $newprice)
+		mysql_query("UPDATE ".MySQLprefix."_goods SET price='".$newprice."' WHERE id=".$id);
+	switch($_POST['action']){
+		case 'ch-price':
+			if(strlen($_POST['delta'])>0 && (substr($_POST['delta'],0,1)=='-' || substr($_POST['delta'],0,1)=='+')){
+				if($_POST['delta_type']=='perc')
+					$q = "UPDATE ".MySQLprefix."_goods SET price=(price*(100".$_POST['delta'].")/100) WHERE id=";
+				else
+					$q = "UPDATE ".MySQLprefix."_goods SET price=(price".$_POST['delta'].") WHERE id=";
+			}
+		break;
+		case 'transfer':
+			$q = "UPDATE ".MySQLprefix."_goods SET cat_id=".$_POST['newcat']." WHERE id=";
+		break;
+		case 'onmain':
+			$q = "UPDATE ".MySQLprefix."_goods SET onmain=1 WHERE id=";
+		break;
+		case 'nonmain':
+			$q = "UPDATE ".MySQLprefix."_goods SET onmain=0 WHERE id=";
+		break;
+		case 'hide':
+			$q = "UPDATE ".MySQLprefix."_goods SET status=0 WHERE id=";
+		break;
+		case 'show':
+			$q = "UPDATE ".MySQLprefix."_goods SET status=1 WHERE id=";
+		break;
+		case 'del':
+			$q = "DELETE FROM ".MySQLprefix."_goods WHERE id=";
+		break;
+	}
+	foreach($_POST['select'] AS $id){
+		if($_POST['action']=='del'){
+			$logo = mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_goods WHERE id=".$id),0);
+			if(strlen($logo)>0)
+				unlink('../'.$logo);
+		}
+		$upd = mysql_query($q.$id);
+	}
+}
+if($_GET['ph_del_n'] && $_GET['ph_del_n'] > 0){
+	$files_where = explode('|',mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_goods WHERE id=".$_GET['id']), 0));
+	$new_linn = '';
+	if(count($files_where)>0){
+		for ($fw=0;$fw<count($files_where);$fw++)
+			if($_GET['ph_del_n']-1!=$fw)
+				$new_linn .= $files_where[$fw].'|';
+		if(strlen($new_linn)>0)
+			$new_linn = substr($new_linn,0, strlen($new_linn)-1);
+		$result = mysql_query("UPDATE ".MySQLprefix."_goods SET logo='".$new_linn."' WHERE id=".$_GET['id']);
+	}
+	?>
+	<script type="text/javascript">
+		<!--
+		$(document).ready(function(){
+			document.location.href = document.location.href.split('&ph_del_n')[0];
+		});
+		//-->
+	</script>
+	<?php
+}
+if($_GET['del2'] == 1){
+	$logo = mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_goods WHERE id=".$_GET['id']),0);
+	if(strlen($logo)>0)
+		unlink('../'.$logo);
+	$result = mysql_query("DELETE FROM ".MySQLprefix."_goods WHERE id=".$_GET['id']);
+	?>
+<div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Товар удален</div>
+<script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+</script>
+	<?php
+}
+if(strlen($_POST['name'])>0){
+	if(!isset($_POST['status']))
+		$_POST['status'] = 0;
+	if(!isset($_POST['onmain']))
+		$_POST['onmain'] = 0;
+	if(!isset($_POST['podzak']))
+		$_POST['podzak'] = 0;
+	$linnnn = '';
+	for ($nf=0;$nf<count($_FILES["npic"]["tmp_name"]);$nf++){
+		$ran = round(rand(1000000000, 9999999999), 0);
+		$n_type = substr($_FILES["npic"]["name"][$nf], strrpos($_FILES["npic"]["name"][$nf], '.'), strlen($_FILES["npic"]["name"][$nf])-strrpos($_FILES["npic"]["name"][$nf], '.'));
+		if(move_uploaded_file($_FILES["npic"]["tmp_name"][$nf], "uploads/".$ran.$n_type))
+			$linnnn .= "admin/uploads/".$ran.$n_type."|";
+	}
+	if(strlen($linnnn)>0)
+		$linnnn = substr($linnnn,0, strlen($linnnn)-1);
+	if($_POST['todo'] == 1){
+		$files_where = mysql_result(mysql_query("SELECT logo FROM ".MySQLprefix."_goods WHERE id=".$_POST['nid']),0);
+		if(strlen($files_where)>0 && strlen($linnnn)>0)
+			$linnnn = $files_where."|".$linnnn;
+		elseif(strlen($files_where)==0 && strlen($linnnn)>0)
+			$linnnn = $linnnn;
+		else
+			$linnnn = $files_where;
+		$result = mysql_query("UPDATE ".MySQLprefix."_goods SET date_create=NOW(), brand='".$_POST['brand']."', onmain='".$_POST['onmain']."', podzak='".$_POST['podzak']."', status='".$_POST['status']."', cat_ids='|".implode("|",$_POST['cat_ids'])."|', logo='".$linnnn."', g_code='".$_POST['g_code']."', g_art='".$_POST['g_art']."', h1='".$_POST['h1']."', name='".$_POST['name']."', title='".$_POST['title']."', description='".$_POST['description']."', keywords='".$_POST['keywords']."', desc_full='".$_POST['comment_full']."', mods='".$_POST['mods']."', price='".$_POST['price']."', stock='".$_POST['stock']."' WHERE id=".$_POST['nid']);
+		$del_eco_good_chars_val = mysql_query("DELETE FROM ".MySQLprefix."_good_chars_val WHERE good_id='".$_POST['nid']."'");
+		if(isset($_POST['good_char']) && count($_POST['good_char'])>0)
+			foreach($_POST['good_char'] AS $char_id => $char_val)
+				$del_eco_good_chars_val = mysql_query("INSERT INTO ".MySQLprefix."_good_chars_val (char_id, good_id, char_val) VALUES ('".$char_id."', '".$_POST['nid']."', '".$char_val."')");
+		?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Информация обновлена</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+		<?php
+	}else{
+		$result = mysql_query("INSERT INTO ".MySQLprefix."_goods (brand, onmain, podzak, g_code, g_art, cat_ids, status, name, h1, title, description, keywords, logo, date_create, desc_full, mods, price, stock) VALUES ('".$_POST['brand']."', '".$_POST['onmain']."', '".$_POST['podzak']."', '".$_POST['g_code']."', '".$_POST['g_art']."', '|".implode("|",$_POST['cat_ids'])."|', '".$_POST['status']."', '".$_POST['name']."', '".$_POST['h1']."', '".$_POST['title']."', '".$_POST['description']."', '".$_POST['keywords']."', '".$linnnn."', NOW(), '".$_POST['comment_full']."', '".$_POST['mods']."', '".$_POST['price']."', '".$_POST['stock']."')");
+		$last_id = mysql_result(mysql_query("SELECT id FROM ".MySQLprefix."_goods ORDER BY id DESC LIMIT 0, 1"), 0);
+		if(isset($_POST['good_char']) && count($_POST['good_char'])>0)
+			foreach($_POST['good_char'] AS $char_id => $char_val)
+				$del_eco_good_chars_val = mysql_query("INSERT INTO ".MySQLprefix."_good_chars_val (char_id, good_id, char_val) VALUES ('".$char_id."', '".$last_id."', '".$char_val."')");
+		?>
+  <div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">Товар добавлен</div>
+  <script type="text/javascript">
+	function rem_mes(){
+		$('.result-mess').fadeOut(1000, function(){
+			$('.result-mess').remove();
+		});
+	}
+	var mto = window.setTimeout('rem_mes()',2000);
+  </script>
+		<?php
+	}
+}
+$result = mysql_query("SELECT * FROM ".MySQLprefix."_categories ORDER BY p_id ASC, sort_id ASC");
+if ($result){
+	while ($row = mysql_fetch_assoc($result)) {
+		$treeid[] = $row["id"];
+		$treesid[] = $row["sort_id"];
+		$treename[] = $row["name"];
+		$treepid[] = $row["p_id"];
+		$treelevel[] = 0;
+	}
+}
+$count = count($treeid);
+for ($i=0;$i<$count-1;$i++){
+	$g = $i;
+	for ($j=1;$j<$count;$j++){
+		if ($treepid[$j] == $treeid[$i]){
+			$jid = $treeid[$j];
+			$jsid = $treesid[$j];
+			$jpid = $treepid[$j];
+			$jname = $treename[$j];
+			$jlevel = $treelevel[$i]+1;
+			$k=$j;
+			while ($k>$g+1){
+				$treeid[$k] = $treeid[$k-1];
+				$treesid[$k] = $treesid[$k-1];
+				$treepid[$k] = $treepid[$k-1];
+				$treename[$k] = $treename[$k-1];
+				$treelevel[$k] = $treelevel[$k-1];
+				$k=$k-1;
+			}
+			$treeid[$g+1] = $jid;
+			$treesid[$g+1] = $jsid;
+			$treepid[$g+1] = $jpid;
+			$treename[$g+1] = $jname;
+			$treelevel[$g+1] = $jlevel;
+			$g++;
+		}
+	}
+}
+if(!isset($_GET['p']))
+	$_GET['p'] = 1;
+if(!isset($_GET['filter']))
+	$filter = "id>0";
+else
+	switch($_GET['filter']){
+		case 'none':
+			$filter = "cat_ids = '||'";
+		break;
+		case 'onmain':
+			$filter = "onmain=1";
+		break;
+		default:
+			if($_GET['p_id']>0)
+				$filter = "cat_ids LIKE '%|".$_GET['p_id']."|%";
+			else
+				$filter = "id>0";
+	}
+$firm_name = strlen($_GET['search_good'])>0?" AND name LIKE '%".$_GET['search_good']."%'":'';
+if(strlen($firm_name)>0 && $filter == "status=0"){
+	$filter = " name LIKE '%".$_GET['search_good']."%'";
+	$firm_name = "";
+}
+$import1c = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=66"),0);
+if($import1c==1){
+	?>
+<a class="1cshow" style="color:blue;cursor:pointer;text-decoration:underline">Импортировать из 1С</a>
+<script>
+	<!--
+	$(document).ready(function(){
+		$('.1cshow').click(function(){
+			$(this).hide();
+			$('.1cimport').show();
+		});
+		$('.1chide').click(function(){
+			$('.1cimport').hide();
+			$('.1cshow').show();
+		});
+	});
+	//-->
+</script>
+<form method="post" class="1cimport" style="display:none" action="import_1c.php" target="_blank" enctype="multipart/form-data">
+	<table width="100%">
+		<tr>
+			<td width="100" align="left">
+				<b>Импорт из 1С.</b>
+				<br/>
+				<br/>
+				<a class="1chide" style="color:grey;cursor:pointer;text-decoration:underline">Скрыть</a>
+			</td>
+			<td>
+				<table width="100%">
+					<tr>
+						<td align="right">
+							Файл выгрузки данных (напр., import.xml) :
+						</td>
+						<td>
+							<input type="file" name="import_xml" />
+						</td>
+						<td rowspan="3" align="center" nowrap>
+							&laquo;post_max_size&raquo; <b><?=ini_get('post_max_size')?>b</b>
+							<br/>
+							Обратите внимание на размер файлов!
+							<br/><br/>
+							В случае превышения, создайте папку
+							<br/>
+							"import_files" в корне на фтп
+							<br/>
+							и залейте туда файлы :
+							<br/>
+							import.xml, offers.xml, photos.zip
+						</td>
+					</tr>
+					<tr>
+						<td align="right">
+							Файл выгрузки цен и наличия (напр., offers.xml) :
+						</td>
+						<td>
+							<input type="file" name="offers_xml" />
+						</td>
+					</tr>
+					<tr>
+						<td align="right">
+							Архив выгрузки картинок (напр., photos.zip) :
+						</td>
+						<td>
+							<input type="file" name="photos_zip" />
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td width="80" align="right">
+				<input type="submit" value="Начать &raquo;" />
+			</td>
+		</tr>
+	</table>
+</form>
+<hr/>
+	<?php
+}
+?>
+<form action="" method="get" style="position:relative;" class="asdfa">
+	<a <?php if(!isset($_GET['filter']) || strlen($_GET['filter'])==0){ ?>style="text-decoration:none;color:black;" <?php } ?>href="cms.php?go=<?php echo $_GET['go']; ?>&p=1&abs=<?php echo $_GET['abs']; ?>">Все (<?php echo mysql_result(mysql_query("SELECT count(id) FROM ".MySQLprefix."_goods"), 0); ?>)</a> | <a <?php if($_GET['filter']=='onmain'){ ?>style="text-decoration:none;color:black;" <?php } ?>href="cms.php?go=<?=$_GET['go']?>&filter=onmain&p=1&abs=<?=$_GET['abs']?>">На главной (<?=mysql_result(mysql_query("SELECT count(*) FROM ".MySQLprefix."_goods WHERE onmain=1"), 0)?>)</a> | Из категории: <input type="hidden" name="p" value="<?php if(!isset($_GET['p']) || strlen($_GET['p'])==0){ ?>1<?php }else{ echo $_GET['p']; } ?>" /><input type="hidden" name="go" value="<?php echo $_GET['go']; ?>" /><input type="hidden" name="filter" value="<?php if(isset($_GET['filter']) && strlen($_GET['filter'])>0){ echo $_GET['filter']; } ?>" /><select name="p_id"><option value="0"<?php if(!$_GET['p_id']){ ?> selected="selected"<?php } ?>>не выбран</option>
+	<?php
+	for($i=0;$i<count($treeid);$i++){
+		echo '<option value="'.$treeid[$i].'"';
+		if ($_GET["p_id"] == $treeid[$i])
+			echo ' selected';
+		echo '>';
+		for($m=0;$m<$treelevel[$i];$m++)
+			echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+		echo $treename[$i].'</option>';
+	} ?></select>
+	<script type="text/javascript">
+		<!--
+		$(document).ready(function(){
+			$('.find-firm').click(function(){
+				$('.asdfa').submit();
+			});
+			$('select[name="p_id"]').change(function(){
+				$('.asdfa').submit();
+			});
+		});
+		//-->
+	</script> | <a <?php if($_GET['filter']=='none'){ ?>style="text-decoration:none;color:black;" <?php } ?>href="cms.php?go=<?php echo $_GET['go']; ?>&filter=none&p=1&abs=<?php echo $_GET['abs']; ?>">Без категории (<?php echo mysql_result(mysql_query("SELECT count(id) FROM ".MySQLprefix."_goods WHERE cat_id=0"), 0); ?>)</a> | <input type="text" class="search-firm" value="<?php echo $_GET['search_good']; ?>" style="width:100px;border:1px solid #011393;border-radius:3px;padding:1px 5px" name="search_good" /> <a class="find-firm" style="color:blue;cursor:pointer;text-decoration:underline">Поиск</a>
+	<input type="hidden" name="abs" value="<?php if($_GET['abs']==1){ ?>1<?php }else{ ?>0<?php } ?>" />
+</form>
+<?php
+if(!isset($_GET['edit']) && !isset($_GET['add'])){
+$limit = 100;
+$companies_cnt = mysql_result(mysql_query("SELECT count(id) FROM ".MySQLprefix."_goods WHERE ".$filter.$u_id_filter.$firm_name), 0);
+$abs = $_GET['abs']==1?"name ASC":"id DESC";
+$companies = mysql_query("SELECT * FROM ".MySQLprefix."_goods WHERE ".$filter.$firm_name." ORDER BY ".$abs." LIMIT ".(($_GET['p']-1)*$limit).", ".$limit);
+if($companies)
+  if(mysql_num_rows($companies)>0){
+    ?>
+	<script>
+	function chekselekt(){
+		if($('.act-formm select').val()=='ch-price'){
+			$('.act-formm select').after('<span class="del-or-not"> на <input type="text" name="delta" size="5" /> <select name="delta_type"><option value="rub">р.</option><option value="perc">%</option></select> <a style="cursor:pointer;color:green">Применить</a> (Увеличить: "+500"; уменьшить: "-500")</span>');
+			$('.del-or-not a').click(function(){
+				$('.act-formm').submit();
+			});
+		}else if($('.act-formm select').val()=='transfer'){
+			$('.act-formm select').after('<select name="newcat" class="newcat" style="width:200px"><option value="0">не выбран</option><?php for($i=0;$i<count($treeid);$i++){ ?><option value="<?=$treeid[$i]?>"><?php for($m=0;$m<$treelevel[$i];$m++){ ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php } ?><?=$treename[$i]?></option><?php } ?></select><span class="del-or-not"> <a style="cursor:pointer;color:green">Применить</a></span>');
+			$('.del-or-not a').click(function(){
+				$('.act-formm').submit();
+			});
+		}else if($('.act-formm select').val()=='del'){
+			$('.act-formm select').after('<span class="del-or-not">Подтвердите удаление: <a style="cursor:pointer;color:red">удалить</a></span>');
+			$('.del-or-not').click(function(){
+				$('.act-formm').submit();
+			});
+		}else{
+			$('.del-or-not, .newcat').remove();
+			if($('.act-formm select').val()!='')
+				$('.act-formm').submit();
+		}	
+	}
+	$(document).ready(function(){
+	  $('.ch-price-all').click(function(){
+		  $('.act-formm').submit();
+	  });
+	  $('.abs').change(function(){
+	    if($(this).attr('checked'))
+		  $('input[name="abs"]').val('1');
+		else
+		  $('input[name="abs"]').val('0');
+	  });
+	});
+	</script>
+	<form method="post" action="" class="act-formm"><table width="100%"><tr><td colspan="6"><hr/>С отмеченными: <select name="action" onchange="chekselekt()"><option value="">выбрать действие</option><option value="onmain">Вывести на главной</option><option value="nonmain">Убрать с главной</option><option value="ch-price">Изменить цену</option><option value="transfer">Переместить в категорию:</option><option value="hide">Не показывать</option><option value="show">Активировать</option><option value="del">Удалить</option></select> <span style="float:right"><input type="checkbox" class="abs" value="1"<?php if($_GET['abs']==1){ ?> checked="checked"<?php } ?> /> по алфавиту <a class="find-firm" style="color:blue;cursor:pointer;text-decoration:underline">Применить</a></span><hr/></td></tr><tr><td><input type="checkbox" name="select_all" value="1" /></td><td>Фото</td><td>Наименование / Описание</td><td>Цена <a class="ch-price-all" style="cursor:pointer;color:blue;text-decoration:underline">Изменить</a></td><td>На складе</td><td>Cтатус</td><td>&nbsp;</td></tr><?php
+    while($company = mysql_fetch_assoc($companies)){
+		echo '<tr><td colspan="7"><hr/></td></tr><tr><td valign="top"><input class="select_id" type="checkbox" name="select[]" value="'.$company['id'].'" /></td><td valign="top"><img alt="" style="max-height:100px;max-width:100px" src="../';
+		$pics = explode('|', $company['logo']);
+		$fnd = false;
+		if(is_array($pics) && count($pics)>0)
+			foreach($pics AS $picc)
+				if(strlen($picc)>0 && !$fnd){
+					echo $picc;
+					$fnd = true;
+				}
+		echo '" /></td><td valign="top"><b>'.$company['name'].'</b></td><td valign="top"><input style="width:50px;text-align:right;border:1px solid #011393;border-radius:3px;padding:1px 5px" type="input" name="price_al['.$company['id'].']" value="'.$company['price'].'" /></td><td valign="top">'.$company['stock'].'</td><td valign="top">'.($company['status']==1?'<b style="color:green">активен</b>':'<b style="color:gray">скрыт</b>').'</td><td valign="top"><a href="cms.php?go='.$_GET['go'].'&amp;edit=1&amp;id='.$company['id'].'" style="color: green;"><img alt="редактировать" src="img/edit.gif" width="16" style="vertical-align:-3px;" /></a><br/>'.(!isset($_GET['del'])?'<a href="cms.php?go='.$_GET['go'].'&del='.$company['id'].'&filter='.$_GET['filter'].'" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" /></a>':'').($_GET['del']==$company['id']?'<br/>Удалить?<br/><a href="cms.php?go='.$_GET['go'].'&del2=1&id='.$_GET['del'].'" style="color: red;" title="Удаление">ДА</a> | <a href="cms.php?go='.$_GET['go'].'" style="color: black;" title="Отмена">НЕТ</a>':'').'</td></tr>';
+	}
+	?>
+	</table></form><hr/>
+	<style>
+	.pags{position:relative;padding-left:60px;width:auto;overflow:hidden;}
+	.pags span{position:absolute;width:50px;left:0;top:0;}
+	.pags b, .pags a{float:left;display:block;width:20px;text-align:right;margin-left:6px;padding:2px}
+	.pags a:hover{background:blue;color:#A8D7F1;}
+	</style>
+	<div class="pags"><span>Страницы:</span><?php for($p=1; $p<=ceil($companies_cnt/$limit); $p++){ if($_GET['p']==$p){ ?><b><?php echo $p; ?></b><?php }else{ ?><a href="cms.php?go=<?php echo $_GET[go]; ?>&p=<?php echo $p; ?>&filter=<?php echo $_GET[filter]; ?>&abs=<?php echo $_GET[abs]; ?>&search_firm=<?php echo $_GET['search_firm']; ?>&p_id=<?php echo $_GET[p_id]; ?>"><?php echo $p; ?></a><?php }} ?></div>
+	<script type="text/javascript">
+		<!--
+		$(document).ready(function(){
+			$('input[name="select_all"]').change(function(){
+				if($(this).attr('checked')){
+					$('.select_id').each(function(){
+						$(this).attr('checked', 'checked');
+					});
+				}else{
+					$('.select_id').each(function(){
+						$(this).removeAttr('checked');
+					});
+				}
+			});
+		});
+		//-->
+	</script>
+	<?php
+  }
+?>
+<a style="position:fixed;left:0;top:50%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" href='cms.php?go=<?php echo $_GET['go']; ?>&amp;add=1'>Добавить</a>
+<?php }else{
+if(isset($_GET['edit'])){
+	$company_r = mysql_query("SELECT * FROM ".MySQLprefix."_goods WHERE id=".$_GET['id']);
+	if($company_r)
+		if(mysql_num_rows($company_r)==1)
+			$company = mysql_fetch_assoc($company_r);
+}
+?>
+	<hr/>
+	<form action="" method="post" style="margin-top:40px" enctype="multipart/form-data">
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Строка меню *:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<input type="text" name="name" size="70" value='<?=$company['name']?>' style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> <a class="dubl" style="color:blue;cursor:pointer;text-decoration:underline">Копировать в СЕО</a> <input type="checkbox" value="1" name="status" <?php if($_GET['add'] == 1 || ($company['status']==1 and $_GET['edit'] == 1)){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> показывать на сайте <input type="checkbox" value="1" name="onmain" <?php if($_GET['add'] == 1 || ($company['onmain']==1 and $_GET['edit'] == 1)){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> на Главной
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden;position:relative;">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Категория(ии):</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<select name="cat_ids[]" style="border:1px solid #011393;border-radius:3px;padding:1px 5px;vertical-align:top;width:250px" multiple="multiple">
+					<option value="0">не выбран</option>
+					<?php
+					$cat_ids = explode("|", substr($company["cat_ids"],1,strlen($company["cat_ids"])-2));
+					for($i=0;$i<count($treeid);$i++){
+						echo '<option value="'.$treeid[$i].'"';
+						if (is_array($cat_ids) && count($cat_ids)>0 && in_array($treeid[$i],$cat_ids) && $_GET['edit'] == 1)
+							echo ' selected';
+						echo '>';
+						for($m=0;$m<$treelevel[$i];$m++)
+							echo '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+						echo $treename[$i].'</option>';
+					}
+					?>
+				</select> (для выбора нескольких категорий: CTR + CLICK). БРЕНД : 
+				<select name="brand" style="border:1px solid #011393;border-radius:3px;padding:1px 5px;width:150px">
+					<option value="0">не выбран</option>
+					<?php
+					$brand_r = mysql_query("SELECT * FROM ".MySQLprefix."_brands ORDER BY name");
+					if($brand_r && mysql_num_rows($brand_r)>0)
+						while($brand = mysql_fetch_assoc($brand_r)){
+							?>
+					<option value="<?=$brand['id']?>"<?=($company['brand']==$brand['id']?' selected':'')?>><?=$brand['name']?></option>
+							<?php
+						}
+					?>
+				</select>
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden;position:relative;">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Цена (только цифры):</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<input type="text" name="price" size="10" value="<?php echo $company['price']; ?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> руб. | Есть на складе <input type="text" name="stock" size="5" value="<?=$company['stock']?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> шт. <input type="checkbox" value="1" name="podzak" <?php if($_GET['add'] == 1 || ($company['podzak']==1 and $_GET['edit'] == 1)){ ?>checked="checked" <?php } ?>style="vertical-align:-2px" /> Под заказ | Артикул: <input type="text" name="g_art" size="15" value="<?=$company['g_art']?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> Код товара: <input type="text" name="g_code" size="15" value="<?=$company['g_code']?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" />
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">SEO title:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<textarea name="title" cols="90" rows="2" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$company['title']?></textarea>
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">SEO description:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<textarea name="description" cols="90" rows="2" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$company['description']?></textarea>
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">SEO keywords:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<textarea name="keywords" cols="90" rows="2" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$company['keywords']?></textarea>
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Изображения:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<?php
+				if($_GET['edit'] == 1 && strlen($company['logo'])>0){
+					$files_where = explode('|', $company['logo']);
+					if(count($files_where)>0){
+						echo '<div style="width:100%;overflow:hidden;position:relative;">';
+						for ($fw=0;$fw<count($files_where);$fw++)
+							echo '<span style="display:block;width:150px;height:150px;overflow:hidden;float:left;border:1px solid grey;margin:1px;text-align:center;line-height:150px;position:relative;"><img src="../'.$files_where[$fw].'" style="border:0;max-height:100%;max-width:100%;vertical-align:middle;position:relative;" /><a href="cms.php?go='.$_GET['go'].'&edit=1&id='.$_GET['id'].'&ph_del_n='.($fw+1).'" style="display:block;width:16px;height:16px;position:absolute;right:0;top:0;background:url(img/b_drop.png);cursor:pointer;"></a></span>';
+						echo '</div>';
+					}
+				}
+				?>
+				<p class="piccs"></p>
+				<script type="text/javascript">
+					<!--
+					function addformpht(){
+						$(".piccs").append('<input type="file" name="npic[]" /><br />');
+					}
+					//-->
+				</script>
+				<a onclick="addformpht();" style="color:blue;font-weight:bold;cursor:pointer;">Добавить фото (+1)</a>
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Характеристики товара:</label>
+			<div class="more_cats" style="display:block;width:84%;float:right;text-align:left;">
+				<?php
+				$more_cats_r = mysql_query("SELECT ".MySQLprefix."_good_chars.id AS char_id, ".MySQLprefix."_good_chars.ed AS char_ed, ".MySQLprefix."_good_chars.name AS char_name, ".MySQLprefix."_good_chars_val.char_val, ".MySQLprefix."_good_chars_val.id AS char_val_id FROM ".MySQLprefix."_good_chars, ".MySQLprefix."_good_chars_val WHERE ".MySQLprefix."_good_chars.id=".MySQLprefix."_good_chars_val.char_id AND ".MySQLprefix."_good_chars_val.good_id=".$company["id"]." ORDER BY ".MySQLprefix."_good_chars.sort_id");
+				if($more_cats_r){
+					if(mysql_num_rows($more_cats_r)>0){
+						while($more_cats = mysql_fetch_assoc($more_cats_r)){
+							?>
+				<span style="line-height:20px;display:block;margin-top:10px"><?php echo $more_cats['char_name']; ?>: <input type="text" name="good_char[<?php echo $more_cats['char_id']; ?>]" value="<?php echo $more_cats['char_val']; ?>" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> <?php echo $more_cats['char_ed']; ?> <a rel="<?php echo $more_cats['char_val_id']; ?>" class="del_cat_from_page" style="cursor:pointer;line-height:20px" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" /></a></span>
+							<?php
+						}
+					}
+				}
+				?>
+			</div>
+			<div style="display:block;width:84%;float:right;text-align:left;margin-left:16%;padding-top:5px;border-top:1px dashed #ccc;">
+				<select name="what_char_add" class="what_char_add">
+				  <option value="0">выберите</option>
+				  <?php
+				  $what_char_add = mysql_query("SELECT * FROM ".MySQLprefix."_good_chars");
+				  if($what_char_add)
+					if(mysql_num_rows($what_char_add)>0)
+						while($what_char = mysql_fetch_assoc($what_char_add)){
+						  $chars[] = 'chars_ar['.$what_char['id'].'] = ["'.str_replace(chr(10),'',$what_char['name']).'", "'.str_replace(chr(10),'',$what_char['ed']).'"];';
+						  echo '<option value="'.$what_char['id'].'">'.$what_char['name'].'</option>';
+						}
+				  ?>
+				  <option value="all">добавить все</option>
+				</select>
+				<a class="add_more_cat_id" style="color:blue;cursor:pointer;line-height:20px;font-weight:bold">Добавить</a>
+				<script type="text/javascript">
+					<!--
+					var chars_ar = new Array();
+					<?php
+					echo implode("\n", $chars);
+					?>
+					function re_del(){
+						$('.del_cat_from_page:not(.listed)').click(function(){
+							$(this).parent().remove();
+						});
+						$('.del_cat_from_page:not(.listed)').addClass('listed');
+					}
+					$(document).ready(function(){
+						$('.and_from_db').click(function(){
+							$.post('_and_from_db.php', {id: $(this).parent().find('input').val()});
+							$(this).parent().remove();
+						});
+						$('.add_more_cat_id').click(function(){
+							if($('.what_char_add').val()=='all')
+								for (var key in chars_ar) {
+									var val = chars_ar[key];
+									$('.more_cats').append('<span style="line-height:20px;display:block;margin-top:10px">'+chars_ar[key][0]+': <input type="text" name="good_char['+key+']" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> '+chars_ar[key][1]+' <a rel="'+key+'" class="del_cat_from_page" style="cursor:pointer;line-height:20px" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" /></a></span>');
+								}
+							else if($('.what_char_add').val()!=0)
+								$('.more_cats').append('<span style="line-height:20px;display:block;margin-top:10px">'+chars_ar[$('.what_char_add').val()][0]+': <input type="text" name="good_char['+$('.what_char_add').val()+']" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" /> '+chars_ar[$('.what_char_add').val()][1]+' <a rel="'+$('.what_char_add').val()+'" class="del_cat_from_page" style="cursor:pointer;line-height:20px" title="Удаление"><img alt="Удалить" src="img/del.gif" width="16" /></a></span>');
+							re_del();
+						});
+						re_del();
+					});
+					//-->
+				</script>
+			</div>
+		</div><br/><hr/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Заголовок H1:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<input type="text" size="120" name="h1" style="border:1px solid #011393;border-radius:3px;padding:1px 5px" value='<?=($_GET['edit'] == 1 ? $company["h1"] : '')?>' />
+			</div>
+		</div><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Полное описание:</label>
+			<div style="display:block;width:84%;float:right;text-align:left;">
+				<textarea name="comment_full" id="editor2" cols="58" rows="5" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$company['desc_full']?></textarea>
+				<script type="text/javascript">
+					<!--
+					var ckeditor2 = CKEDITOR.replace("editor2");
+					AjexFileManager.init({returnTo: "ckeditor", editor: ckeditor2, skin: "light"});
+					$(document).ready(function(){
+						$(".dubl").click(function(){
+							$("textarea[name='title']").val($("input[name='name']").val());
+							$("textarea[name='description']").val($("input[name='name']").val());
+							$("textarea[name='keywords']").val($("input[name='name']").val());
+							$("input[name='h1']").val($("input[name='name']").val());
+						});
+					});
+					//-->
+				</script>
+			</div>
+		</div><?php if(mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=48"),0)==1){ ?><br/><br/>
+		<div style="width:100%;overflow:hidden">
+			<label style="display:block;width:14%;float:left;text-align:right;line-height:20px">Модификации товара:<br/><br/><small>Для отображения модификаций товара необходимо создать таблицу. Количество столбцов и строк - любое. В первой строке таблицы - заголовки! Последним столбцом должна быть цена!</small></label>
+			<div style="display:block;width:84%;float:right;text-align:left">
+				<textarea name="mods" id="editor3" cols="58" rows="5" style="border:1px solid #011393;border-radius:3px;padding:1px 5px"><?=$company['mods']?></textarea>
+				<script type="text/javascript">
+					<!--
+					var ckeditor3 = CKEDITOR.replace("editor3");
+					//-->
+				</script>
+			</div>
+		</div><?php } ?>
+		<input type="hidden" name="todo" value="<?php echo $_GET['edit']; ?>" />
+		<input type="hidden" name="nid" value="<?php if($_GET['edit'] == 1){echo $_GET['id'];} ?>" />
+		<input type="submit" name="update" value="Сохранить" style="position:fixed;left:0;top:50%;display:block;background:#011393;color:#fff;border:1px solid #fff;border-width:1px 1px 1px 0;border-radius:0 15px 15px 0;padding:10px;cursor:pointer;" />
+	</form>
+<?php } ?>
