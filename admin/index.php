@@ -21,6 +21,7 @@ ini_set('display_errors', 0);
 include("_mysql.php");
 include("_additional.php");
 include("_url.php");
+include("_csrf.php");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -54,6 +55,7 @@ include("_url.php");
 	<div class="pop-up ask-quest-pop none">
 		<div class="h2">Написать отзыв</div>
 		<form method="post" class="ask-quest-form">
+			<?=csrf_field()?>
 			<label>Ваше имя:</label>
 			<input type="text" name="name" />
 			<label>Текст сообщения:</label>
@@ -66,6 +68,7 @@ include("_url.php");
 	<div class="pop-up call-back-pop none">
 		<div class="h2">Заказать обратный звонок</div>
 		<form method="post" class="call-back-form">
+			<?=csrf_field()?>
 			<label>Ваше имя:</label>
 			<input type="text" name="name" />
 			<label>Ваш телефон:</label>
@@ -86,6 +89,7 @@ include("_url.php");
 	<div class="pop-up one-click-pop none">
 		<div class="h2">Введите ваши данные</div>
 		<form method="post" class="one-click-form">
+			<?=csrf_field()?>
 			<input type="text" class="text" name="name" placeholder="Ваше Ф.И.О." />
 			<input type="text" class="text" name="contacts" placeholder="Ваш телефон" />
 			<textarea class="text" name="text" placeholder="Комментарий к заказу"></textarea>

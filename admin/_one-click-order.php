@@ -1,6 +1,13 @@
 <?
 session_start();
+include("_csrf.php");
+
+// CSRF проверка
+csrf_validate_or_die();
+
+// Проверка капчи
 if(!isset($_SESSION['captcha_keystring']) || $_SESSION['captcha_keystring'] !== $_POST['keystring']){ ?><p style="color:red">Введите цифры на картинке!</p><? exit; }
+
 $HEVA_CMS = "3.1.5.20130222";
 include('_mysql.php');
 include('_additional.php');

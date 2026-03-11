@@ -1,6 +1,13 @@
 <?
 session_start();
+include("_csrf.php");
+
+// CSRF проверка
+csrf_validate_or_die();
+
+// Проверка капчи
 if(!isset($_SESSION['captcha_keystring']) || $_SESSION['captcha_keystring'] !== $_POST['keystring']){ ?><p style="color:red">Введите цифры на картинке!</p><? exit; }
+
 include("_mysql.php");
 include("_additional.php");
 $headers  = 'MIME-Version: 1.0'."\r\n".'Content-type: text/html; charset=utf-8'."\r\n".'From: '.$additional[11].' <noreplay@'.$_SERVER['SERVER_NAME'].'>'."\r\n";
