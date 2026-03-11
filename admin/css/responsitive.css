@@ -326,3 +326,44 @@
 		.pop-up textarea, .one-click-pop.pop-up textarea{width:98%}
 		.submit{float:none;margin:5px auto 0}
 }
+/* === Адаптивность таблиц === */
+@media screen and (max-width: 767px) {
+	/* Горизонтальный скролл для таблиц */
+	.table-responsive {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+	
+	/* Таблицы в контенте */
+	.pagetext table,
+	.goods-table,
+	.cart-table {
+		min-width: 600px;
+	}
+}
+
+/* === Улучшения для форм на мобильных === */
+@media screen and (max-width: 479px) {
+	input[type="text"],
+	input[type="email"],
+	input[type="tel"],
+	input[type="password"],
+	textarea,
+	select {
+		font-size: 16px; /* Предотвращает зум на iOS */
+		min-height: 44px;
+		padding: 10px;
+	}
+	
+	button,
+	input[type="submit"],
+	input[type="button"],
+	.submit,
+	.buy-it,
+	.adtocart {
+		min-height: 44px;
+		min-width: 44px;
+		padding: 10px 20px;
+		font-size: 16px;
+	}
+}

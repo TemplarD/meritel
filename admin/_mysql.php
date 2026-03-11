@@ -11,10 +11,15 @@
 define(MySQLprefix, "viz620");
 
 // === НАСТРОЙКИ ПОДКЛЮЧЕНИЯ ===
-// Замените на ваши параметры или используйте переменные окружения
-$m_Link = mysql_connect("localhost", "meritel", "meritel123") or die ("<!-- Ошибка подключения к серверу. -->");
+// Для Docker: DB_HOST=db, для локального: DB_HOST=localhost
+$db_host = getenv('DB_HOST') ?: 'db';
+$db_user = getenv('DB_USER') ?: 'meritel';
+$db_pass = getenv('DB_PASSWORD') ?: 'meritel123';
+$db_name = getenv('DB_NAME') ?: 'viz620';
+
+$m_Link = mysql_connect($db_host, $db_user, $db_pass) or die ("<!-- Ошибка подключения к серверу. -->");
 mysql_query("SET NAMES utf8");
-mysql_select_db("viz620") or die ("<!-- Ошибка соединения с БД. -->");
+mysql_select_db($db_name) or die ("<!-- Ошибка соединения с БД. -->");
 
 function textTrimm($text, $length){
 	$s_text = strip_tags($text);

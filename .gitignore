@@ -32,7 +32,7 @@ cache/
 *~
 
 # === Загруженные файлы (контент) ===
-admin/uploads/
+admin/uploads/*
 !admin/uploads/.gitkeep
 
 # === IDE и редакторы ===

@@ -65,7 +65,7 @@ if ($_SESSION['lginin'] != 2){ ?>
 	<link rel='stylesheet' type='text/css' href='css/pikaday.css' media='all' />
 	<script type="text/javascript" src="ckeditor/ckeditor.js"></script>
 	<script type="text/javascript" src="ajexfilemanager/ajex.js"></script>
-	<script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="js/jquery-3.7.1.min.js"></script>
 	<script src="js/moment.min.js"></script>
     <script src="js/pikaday.js"></script>
 <?php }else{ ?>

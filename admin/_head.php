@@ -7,7 +7,7 @@
 	<link rel="stylesheet" type="text/css" href="/admin/css/style.css" media="screen, projection" />
 	<?php if($additional[69]==1){ ?><link rel="stylesheet" type="text/css" href="/admin/css/responsitive.css" media="screen, projection" /><?php } ?>
 	<link rel="stylesheet" type="text/css" href="/admin/css/jquery.fancybox-1.3.4.css" media="screen, projection" />
-	<script type="text/javascript" src="/admin/js/jquery-1.4.4.min.js"></script>
+	<script type="text/javascript" src="/admin/js/jquery-3.7.1.min.js"></script>
 	<script type="text/javascript" src="/admin/js/ddsmoothmenu.js"></script>
 	<script type="text/javascript" src="/admin/js/jquery.fancybox-1.3.4.pack.js"></script>
 	<script type="text/javascript">
