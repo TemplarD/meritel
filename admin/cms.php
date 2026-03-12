@@ -32,6 +32,7 @@ $pages[5] = 'Наши партнеры';
 if($_SESSION['u_id'] == -1)
 	$pages[7] = 'Юзеры';
 $pages[8] = 'Настройки';
+$pages[20] = '🛒 Магазин';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -85,7 +86,14 @@ if ($_SESSION['lginin'] != 2){ ?>
 		<?php } ?>
 	</ul>
 	<div style="width:980px;padding:10px;margin:0 auto;overflow:hidden;background:#fff;background:rgba(255,255,255,0.5);border-radius:10px;clear:both">
-		<?php include($go.".phtml"); ?>
+		<?php
+		// Настройки магазина
+		if($go == 23) {
+			include('shop_settings.php');
+		} else {
+			include($go.".phtml");
+		}
+		?>
 	</div>
 	<?php
 	include('_sitemap.php');
