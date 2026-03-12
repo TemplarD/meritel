@@ -1,0 +1,191 @@
+<?php
+/**
+ * Настройки магазина (цены, контакты, уведомления)
+ * Файл: 20.phtml (вызывается через cms.php?go=23)
+ */
+
+// Обработка сохранения
+if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings'])) {
+    // Скрыть цены
+    $hide_prices = isset($_POST['hide_prices']) ? '1' : '0';
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$hide_prices' WHERE id=70");
+    
+    // Текст вместо цены
+    $price_text = mysql_real_escape_string($_POST['price_text']);
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$price_text' WHERE id=71");
+    
+    // Телефон
+    $phone = mysql_real_escape_string($_POST['phone']);
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$phone' WHERE id=4");
+    
+    // WhatsApp
+    $whatsapp = mysql_real_escape_string($_POST['whatsapp']);
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$whatsapp' WHERE id=77");
+    
+    // Telegram username
+    $telegram = mysql_real_escape_string($_POST['telegram']);
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$telegram' WHERE id=78");
+    
+    // Email для уведомлений
+    $notify_email = mysql_real_escape_string($_POST['notify_email']);
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$notify_email' WHERE id=74");
+    
+    // Telegram Bot Token
+    $tg_token = mysql_real_escape_string($_POST['tg_token']);
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$tg_token' WHERE id=72");
+    
+    // Telegram Chat ID
+    $tg_chat_id = mysql_real_escape_string($_POST['tg_chat_id']);
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$tg_chat_id' WHERE id=73");
+    
+    // Включить Telegram уведомления
+    $tg_enabled = isset($_POST['tg_enabled']) ? '1' : '0';
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$tg_enabled' WHERE id=75");
+    
+    // Включить Email уведомления
+    $email_enabled = isset($_POST['email_enabled']) ? '1' : '0';
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$email_enabled' WHERE id=76");
+    
+    $message = '<div class="result-mess" style="position:fixed;left:50%;top:50%;margin:-50px 0 0 -200px;padding:30px;border:1px solid #fff;background:rgba(255,255,255,0.9);border-radius:20px;width:340px;height:40px;text-align:center;color:#000;font:16px/40px normal Arial;">✅ Настройки сохранены!</div>
+    <script type="text/javascript">
+    function rem_mes(){
+        $(".result-mess").fadeOut(1000, function(){$(".result-mess").remove();});
+    }
+    var mto = window.setTimeout("rem_mes()",2000);
+    </script>';
+    echo $message;
+}
+
+// Получаем текущие значения
+$hide_prices = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=70"), 0);
+$price_text = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=71"), 0);
+$phone = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=4"), 0);
+$whatsapp = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=77"), 0);
+$telegram = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=78"), 0);
+$notify_email = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=74"), 0);
+$tg_token = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=72"), 0);
+$tg_chat_id = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=73"), 0);
+$tg_enabled = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=75"), 0);
+$email_enabled = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=76"), 0);
+?>
+
+<style>
+.settings-wrapper { max-width: 900px; margin: 0 auto; }
+.settings-section { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 25px; }
+.settings-section h3 { color: #500106; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid #500106; font-size: 18px; }
+.form-row { margin-bottom: 15px; }
+.form-row label { display: block; font-weight: bold; color: #333; margin-bottom: 5px; font-size: 14px; }
+.form-row input[type="text"], .form-row input[type="email"], .form-row textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
+.form-row input[type="checkbox"] { width: auto; margin-right: 10px; }
+.form-row .checkbox-label { display: inline-flex; align-items: center; font-weight: normal; }
+.form-hint { font-size: 12px; color: #888; margin-top: 5px; font-style: italic; }
+.btn-save { background: linear-gradient(135deg, #500106 0%, #2a0c0e 100%); color: #fff; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
+.btn-save:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(80,1,6,0.4); }
+.inline-row { display: flex; gap: 15px; }
+.inline-row .form-row { flex: 1; }
+</style>
+
+<div class="settings-wrapper">
+    <h2 style="color:#500106; margin-bottom:20px;">🛒 Настройки магазина</h2>
+    
+    <form method="POST" enctype="multipart/form-data">
+        
+        <!-- Цены -->
+        <div class="settings-section">
+            <h3>💰 Настройки цен</h3>
+            
+            <div class="form-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="hide_prices" value="1" <?=($hide_prices == '1' ? 'checked' : '')?> />
+                    Скрыть цены на сайте
+                </label>
+                <div class="form-hint">При включении цены не будут отображаться в каталоге</div>
+            </div>
+            
+            <div class="form-row">
+                <label>Текст вместо цены:</label>
+                <input type="text" name="price_text" value="<?=htmlspecialchars($price_text)?>" placeholder="Уточняйте цену у менеджера" />
+                <div class="form-hint">Будет показан вместо цены, когда цены скрыты</div>
+            </div>
+        </div>
+        
+        <!-- Контакты -->
+        <div class="settings-section">
+            <h3>📞 Контакты и связь</h3>
+            
+            <div class="inline-row">
+                <div class="form-row">
+                    <label>Основной телефон:</label>
+                    <input type="text" name="phone" value="<?=htmlspecialchars($phone)?>" placeholder="+7 (8332) 45-08-19" />
+                </div>
+                
+                <div class="form-row">
+                    <label>WhatsApp номер:</label>
+                    <input type="text" name="whatsapp" value="<?=htmlspecialchars($whatsapp)?>" placeholder="79001234567" />
+                    <div class="form-hint">Только цифры, без +</div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <label>Telegram username:</label>
+                <input type="text" name="telegram" value="<?=htmlspecialchars($telegram)?>" placeholder="meritel43" />
+                <div class="form-hint">Без @</div>
+            </div>
+        </div>
+        
+        <!-- Telegram -->
+        <div class="settings-section">
+            <h3>📬 Уведомления в Telegram</h3>
+            
+            <div class="form-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="tg_enabled" value="1" <?=($tg_enabled == '1' ? 'checked' : '')?> />
+                    Включить уведомления в Telegram
+                </label>
+            </div>
+            
+            <div class="form-row">
+                <label>Telegram Bot Token:</label>
+                <input type="text" name="tg_token" value="<?=htmlspecialchars($tg_token)?>" placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz" />
+                <div class="form-hint">🤖 Получить у <a href="https://t.me/BotFather" target="_blank">@BotFather</a></div>
+            </div>
+            
+            <div class="form-row">
+                <label>Chat ID (куда отправлять):</label>
+                <input type="text" name="tg_chat_id" value="<?=htmlspecialchars($tg_chat_id)?>" placeholder="-1001234567890" />
+                <div class="form-hint">📍 Узнать у <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a></div>
+            </div>
+            
+            <div style="background:#fff3cd; padding:15px; border-radius:5px; margin-top:15px;">
+                <strong>📝 Как настроить Telegram:</strong>
+                <ol style="margin:10px 0 0 20px; font-size:13px; color:#666;">
+                    <li>Создайте бота в @BotFather → получите токен</li>
+                    <li>Добавьте бота в чат/канал (сделайте админом)</li>
+                    <li>Узнайте Chat ID через @userinfobot</li>
+                    <li>Сохраните настройки</li>
+                </ol>
+            </div>
+        </div>
+        
+        <!-- Email -->
+        <div class="settings-section">
+            <h3>📧 Email уведомления</h3>
+            
+            <div class="form-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="email_enabled" value="1" <?=($email_enabled == '1' ? 'checked' : '')?> />
+                    Включить уведомления на Email
+                </label>
+            </div>
+            
+            <div class="form-row">
+                <label>Email для уведомлений:</label>
+                <input type="email" name="notify_email" value="<?=htmlspecialchars($notify_email)?>" placeholder="manager@example.com" />
+                <div class="form-hint">На этот email будут приходить уведомления о заказах и заявках</div>
+            </div>
+        </div>
+        
+        <button type="submit" name="save_settings" class="btn-save">💾 Сохранить все настройки</button>
+        
+    </form>
+</div>

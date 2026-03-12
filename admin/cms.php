@@ -87,9 +87,9 @@ if ($_SESSION['lginin'] != 2){ ?>
 	</ul>
 	<div style="width:980px;padding:10px;margin:0 auto;overflow:hidden;background:#fff;background:rgba(255,255,255,0.5);border-radius:10px;clear:both">
 		<?php
-		// Настройки магазина
+		// Настройки магазина (go=23 → файл 20.phtml)
 		if($go == 23) {
-			include('shop_settings.php');
+			include('20.phtml');
 		} else {
 			include($go.".phtml");
 		}

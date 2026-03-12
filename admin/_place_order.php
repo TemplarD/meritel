@@ -3,14 +3,24 @@ $HEVA_CMS = "3.1.5.20130222";
 session_start();
 include('_mysql.php');
 include('_additional.php');
+include('_notifications.php');
+
+// Вставка заказа
 $insert_order = mysql_query("INSERT INTO ".MySQLprefix."_orders (user, customer_name, customer_email, customer_phone, customer_addr, customer_coment, ship, data) VALUES ('".$_SESSION['user']."', '".$_POST['name']."', '".$_POST['email']."', '".$_POST['contacts']."', '".$_POST['address']."', '".$_POST['text']."', '".$_POST['self-shiping']."', NOW())");
 $get_order_n = mysql_result(mysql_query("SELECT id FROM ".MySQLprefix."_orders WHERE user='".$_SESSION['user']."' ORDER BY id DESC LIMIT 0, 1"),0);
+
+// Обновление корзины
 $update_cart = mysql_query("UPDATE ".MySQLprefix."_cart SET status=".$get_order_n." WHERE user='".$_SESSION['user']."' AND status=1");
+
+// Получение товаров заказа
 $carts = mysql_query("SELECT ".MySQLprefix."_goods.price AS price, ".MySQLprefix."_cart.price AS price2, ".MySQLprefix."_cart.mods, ".MySQLprefix."_cart.kol AS kol, ".MySQLprefix."_cart.good AS good, ".MySQLprefix."_goods.name AS title FROM ".MySQLprefix."_cart, ".MySQLprefix."_goods WHERE ".MySQLprefix."_cart.user='".$_SESSION['user']."' AND ".MySQLprefix."_cart.status=".$get_order_n." AND ".MySQLprefix."_cart.good=".MySQLprefix."_goods.id");
+
 $in_cart = '';
+$sum = 0;
+$order_items = [];
+
 if($carts && mysql_num_rows($carts)>0){
     $in_cart .= '<table cellpadding="2" cellspacing="0" border="1" width="100%"><tr><td align="left">Товар</td><td align="center">Количество</td><td align="right">Цена, руб.</td><td align="right">Сумма, руб.</td></tr>';
-	$sum = 0;
 	while($cart = mysql_fetch_assoc($carts)){
 		$in_cart .= '<tr><td align="left"><a href="'.$_SERVER['HTTP_HOST'].'/goods/'.$cart['good'].'/">'.$cart['title'].'</a>';
 		if(strlen($cart['mods'])>0){
@@ -22,11 +32,22 @@ if($carts && mysql_num_rows($carts)>0){
 				for($g = 0; $g < count($good)-2; $g++)
 					$in_cart .= '<br/>'.$good[$g][0].': '.$good[$g][1];
 		}
-		$in_cart .= '</td><td align="center">'.$cart['kol'].'</td><td align="right">'.(strlen($cart['price2'])>0?$cart['price2']:$cart['price']).'</td><td align="right">'.($cart['kol']*(strlen($cart['price2'])>0?$cart['price2']:$cart['price'])).'</td></tr>';
-		$sum += $cart['kol']*(strlen($cart['price2'])>0?$cart['price2']:$cart['price']);
+		$item_price = (strlen($cart['price2'])>0?$cart['price2']:$cart['price']);
+		$item_sum = $cart['kol'] * $item_price;
+		$in_cart .= '</td><td align="center">'.$cart['kol'].'</td><td align="right">'.$item_price.'</td><td align="right">'.$item_sum.'</td></tr>';
+		$sum += $item_sum;
+		
+		// Для уведомлений
+		$order_items[] = [
+		    'name' => $cart['title'],
+		    'kol' => $cart['kol'],
+		    'price' => $item_price
+		];
 	}
 	$in_cart .= '<tr><td colspan="3" align="right">Итого:</td><td align="right">'.$sum.'</td></tr></table>';
 }
+
+// Данные клиента
 $customer_data = '<p>ФИО: <b>'.$_POST['name'].'</b><br/>';
 if(strlen($_POST['email'])>0){
   $customer_data .= 'Email: <a href="mailto:'.$_POST['email'].'">'.$_POST['email'].'</a><br/>';
@@ -45,6 +66,18 @@ if($_POST['self-shiping']=='1'){
   $customer_data .= '<p>Способ доставки: <b>САМОВЫВОЗ</b></p>';
 }
 $customer_data .= '<br/><center><p>СОСТАВ ЗАКАЗА</p></center><br/>';
+
+// Отправка уведомлений
+$order_data = [
+    'name' => $_POST['name'],
+    'contacts' => $_POST['contacts'],
+    'email' => $_POST['email'],
+    'items' => $order_items,
+    'total' => $sum
+];
+notify_new_order($get_order_n, $order_data);
+
+// Стандартное email уведомление
 $headers  = 'MIME-Version: 1.0'."\r\n".'Content-type: text/html; charset=utf-8'."\r\n".'From: '.$additional[2].' <noreplay@'.$_SERVER['SERVER_NAME'].'>'."\r\n";
 mail($additional[11], 'Новый заказ', $customer_data.$in_cart, $headers);
 if(strlen($_POST['email'])>0){
