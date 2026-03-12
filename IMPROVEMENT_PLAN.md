@@ -232,3 +232,21 @@ jQuery 1.4 → 3.7
   - `_ask-quest-order.php`
 
 ---
+
+### Этап 1: Критические исправления — Часть 3 (PDO, часть 1) ✅
+
+- [x] **Создан PDO модуль** (`admin/_pdo.php`)
+  - Подключение к БД
+  - Prepared statements для защиты от SQL injection
+  - Функции для CRUD операций
+
+- [x] **Миграция обработчиков форм**
+  - `_write-us-order.php` → PDO
+  - `_ask-quest-order.php` → PDO + pdo_insert()
+
+- [x] **Обновлён `_mysql.php`**
+  - Добавлена функция `get_pdo()`
+  - Обратная совместимость с `mysql_*`
+  - Плавная миграция без поломки
+
+---
