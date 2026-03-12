@@ -1,24 +1,4 @@
-		<div class="wide">
-			<?php
-			if($url['target_id']>0){
-				$tree = '/<a>'.$seo['h1'].'</a>';
-				$tree_cat_ar[] = $seo['id'];
-				$parent = mysql_result(mysql_query("SELECT p_id FROM ".MySQLprefix."_categories WHERE id=".$seo['id']),0);
-				while($parent!=0){
-					if(isset($par_data))
-						unset($par_data);
-					$par_r = mysql_query("SELECT ".MySQLprefix."_urls.url, ".MySQLprefix."_categories.id, ".MySQLprefix."_categories.name, ".MySQLprefix."_categories.p_id FROM ".MySQLprefix."_categories, ".MySQLprefix."_urls WHERE ".MySQLprefix."_categories.id=".$parent." AND ".MySQLprefix."_urls.target_type='categories' AND ".MySQLprefix."_urls.target_id=".MySQLprefix."_categories.id LIMIT 0, 1");
-					if($par_r)
-						if(mysql_num_rows($par_r)==1)
-							$par_data = mysql_fetch_assoc($par_r);
-					$tree = '/<a href="'.$cur_city[0].'/'.$par_data['url'].'/">'.$par_data['name'].'</a>'.$tree;
-					$tree_cat_ar[] = $par_data['id'];
-					$parent = $par_data['p_id'];
-				}
-			}
-			?>
-			<?php include('_left.php'); ?>
-			<div class="r-740<?php if($additional[29]==1){ ?> w-1024<?php } ?>">
+		<div style="width: 100%; padding: 20px;">
 				<div class="tree">
 					<a href="/">Главная</a>/<a href="<?=$cur_city[0]?>/<?=$katalog_a['url']?>/"><?=$katalog_a['menu']?></a>
 					<?=$tree?>

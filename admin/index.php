@@ -31,8 +31,15 @@ include("_csrf.php");
 <body>
 	<div class="move-end"></div>
 	<div class="main">
-		<?php include("_header.php"); ?>
-		<div class="telo">
+		<?php 
+		// Получаем количество товаров в корзине
+		$in_cart = pdo_query("SELECT SUM(kol) FROM ".MySQLprefix."_cart WHERE user=? AND status=1", [$user]);
+		$in_cart_res = $in_cart->fetchColumn();
+		$in_cart_res_echo = $in_cart_res ?: 0;
+		
+		include("_new_menu.php"); 
+		?>
+		<div class="telo" style="margin-top: 20px;">
 		<?php include("_".$url['target_type'].".php"); ?>
 		</div>
 	</div>

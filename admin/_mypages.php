@@ -1,6 +1,4 @@
-		<div class="wide">
-			<?php include('_left.php'); ?>
-			<div class="r-740<?php if($additional[29]==1){ ?> w-1024<?php } ?>">
+		<div style="width: 100%; padding: 20px;">
 				<?php
 				$parent = $seo['p_id'];
 				$tree[] = array('/'.$seo['url'], $seo['menu']);

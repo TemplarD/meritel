@@ -1,5 +1,4 @@
-		<div class="wide">
-			<div class="r-740<?php if($additional[29]==1){ ?> w-1024<?php } ?>">
+		<div style="width: 100%; padding: 20px;">
 				<div class="tree">
 					<a href="/">Главная</a>/<a href="<?=$cur_city[0]?>/<?=$katalog_a['url']?>/"><?=$katalog_a['menu']?></a><?php
 					$tree = '';
@@ -212,5 +211,5 @@
 					</ul>
 				</div>
 			</div>
-			<?php include('_left.php'); ?>
+			<?php  ?>
 		</div>

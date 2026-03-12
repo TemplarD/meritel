@@ -2,11 +2,8 @@
 		if($additional[28]==0 && $additional[10]==1)
 			include('_slider_on_main.php');
 		?>
-		<div class="wide">
-			<?php include('_left.php'); ?>
-			<div class="r-740<?php if($additional[29]==1){ ?> w-1024<?php } ?>">
-				<?php
-				$ar_rf = array('%%__FORMA__%%');
+		<div style="width: 100%; padding: 20px;">
+			<?php if($additional[49]==0){ ?>
 				$ar_to = array('
 <div class="pop-up write-us-pop" style="position:relative;left:0;top:0;margin:20px auto;z-index:1;background:#F9F9F9;box-shadow:0 0 5px #ccc;padding:20px 20px 0 20px;overflow:hidden">
 	<form method="post" class="write-us-form">
@@ -139,5 +136,4 @@
 					</script>
 				</div>
 				<?php } ?>
-			</div>
 		</div>
