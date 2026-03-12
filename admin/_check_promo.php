@@ -1,5 +1,6 @@
 <?php
 session_start();
+include('_mysql.php');
 include('_pdo.php');
 include('_promo.php');
 header('Content-Type: application/json');
