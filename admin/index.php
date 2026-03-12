@@ -28,19 +28,21 @@ include("_csrf.php");
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<?php include("_head.php"); ?>
+	<link rel="stylesheet" type="text/css" href="/admin/css/header.css" media="screen, projection" />
 </head>
 <body>
 	<div class="move-end"></div>
 	<div class="main">
-		<?php 
+		<?php
 		// Получаем количество товаров в корзине
 		$in_cart = pdo_query("SELECT SUM(kol) FROM ".MySQLprefix."_cart WHERE user=? AND status=1", [$user]);
 		$in_cart_res = $in_cart->fetchColumn();
 		$in_cart_res_echo = $in_cart_res ?: 0;
-		
-		include("_new_menu.php"); 
+
+		include("_header_top.php");
+		include("_new_menu.php");
 		?>
-		<div class="telo" style="margin-top: 20px;">
+		<div class="telo" style="margin-top: 0;">
 		<?php include("_".$url['target_type'].".php"); ?>
 		</div>
 	</div>
