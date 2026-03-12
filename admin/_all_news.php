@@ -1,5 +1,5 @@
-		<div class="wide">
-			<?php include('_left.php'); ?>
+		<div style="width: 100%; padding: 20px;">
+			
 			<div class="r-740<?php if($additional[29]==1){ ?> w-1024<?php } ?>">
 				<div class="tree"><a href="/">Главная</a>/<a><?=$seo['h1']?></a></div>
 				<div class="pagetext">

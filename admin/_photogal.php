@@ -1,5 +1,5 @@
-		<div class="wide">
-			<?php include('_left.php'); ?>
+		<div style="width: 100%; padding: 20px;">
+			
 			<div class="r-740<?php if($additional[29]==1){ ?> w-1024<?php } ?>">
 				<?php $photogal_a = mysql_fetch_assoc(mysql_query("SELECT menu, url FROM ".MySQLprefix."_mypages WHERE id='64'")); ?>
 				<div class="tree"><a href="/">Главная</a>/<a><?=$photogal_a['menu']?></a></div>

@@ -136,4 +136,6 @@
 					</script>
 				</div>
 				<?php } ?>
-		</div>
+		</div>		</div>
+<?php } ?>
+</div>
