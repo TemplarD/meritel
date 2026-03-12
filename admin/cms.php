@@ -33,6 +33,7 @@ if($_SESSION['u_id'] == -1)
 	$pages[7] = 'Юзеры';
 $pages[8] = 'Настройки';
 $pages[20] = '🛒 Магазин';
+$pages[21] = '🖼️ Галерея';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -90,6 +91,9 @@ if ($_SESSION['lginin'] != 2){ ?>
 		// Настройки магазина (go=23 → файл 20.phtml)
 		if($go == 23) {
 			include('20.phtml');
+		} elseif($go == 24) {
+			// Настройки галереи (go=24 → файл 21.phtml)
+			include('21.phtml');
 		} else {
 			include($go.".phtml");
 		}

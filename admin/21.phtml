@@ -1,0 +1,85 @@
+<?php
+/**
+ * Настройки галереи и слайдера
+ */
+
+// Обработка сохранения
+if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_gallery'])) {
+    // Слайдер вкл/выкл
+    $slider_on = isset($_POST['slider_on']) ? '1' : '0';
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$slider_on' WHERE id=10");
+    
+    // Задержка слайдера
+    $slider_delay = (int)$_POST['slider_delay'];
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$slider_delay' WHERE id=42");
+    
+    // Галерея вкл/выкл
+    $gallery_on = isset($_POST['gallery_on']) ? '1' : '0';
+    mysql_query("UPDATE ".MySQLprefix."_additional SET text='$gallery_on' WHERE id=6");
+    
+    $message = '<div style="background:#d4edda; color:#155724; padding:15px; border-radius:5px; margin-bottom:20px;">✅ Настройки сохранены!</div>';
+    echo $message;
+}
+
+// Получаем текущие значения
+$slider_on = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=10"), 0);
+$slider_delay = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=42"), 0);
+$gallery_on = mysql_result(mysql_query("SELECT text FROM ".MySQLprefix."_additional WHERE id=6"), 0);
+?>
+
+<style>
+.settings-wrapper { max-width: 800px; margin: 0 auto; }
+.settings-section { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 25px; }
+.settings-section h3 { color: #500106; margin: 0 0 15px 0; padding-bottom: 10px; border-bottom: 2px solid #500106; font-size: 18px; }
+.form-row { margin-bottom: 15px; }
+.form-row label { display: block; font-weight: bold; color: #333; margin-bottom: 5px; font-size: 14px; }
+.form-row input[type="text"], .form-row input[type="number"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
+.form-row input[type="checkbox"] { width: auto; margin-right: 10px; }
+.form-row .checkbox-label { display: inline-flex; align-items: center; font-weight: normal; }
+.form-hint { font-size: 12px; color: #888; margin-top: 5px; font-style: italic; }
+.btn-save { background: linear-gradient(135deg, #500106 0%, #2a0c0e 100%); color: #fff; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; }
+.btn-save:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(80,1,6,0.4); }
+</style>
+
+<div class="settings-wrapper">
+    <h2 style="color:#500106; margin-bottom:20px;">🖼️ Настройки галереи и слайдера</h2>
+    
+    <form method="POST">
+        <!-- Слайдер -->
+        <div class="settings-section">
+            <h3>📊 Слайдер на главной</h3>
+            
+            <div class="form-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="slider_on" value="1" <?=($slider_on == '1' ? 'checked' : '')?> />
+                    Включить слайдер
+                </label>
+            </div>
+            
+            <div class="form-row">
+                <label>Задержка (мс):</label>
+                <input type="number" name="slider_delay" value="<?=htmlspecialchars($slider_delay)?>" placeholder="4000" />
+                <div class="form-hint">Время показа одного слайда в миллисекундах</div>
+            </div>
+        </div>
+        
+        <!-- Галерея -->
+        <div class="settings-section">
+            <h3>📸 Галерея товаров</h3>
+            
+            <div class="form-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="gallery_on" value="1" <?=($gallery_on == '1' ? 'checked' : '')?> />
+                    Включить галерею
+                </label>
+            </div>
+            
+            <div class="form-row">
+                <a href="cms.php?go=6" class="btn-save" style="text-decoration:none; display:inline-block;">📷 Управление фотографиями</a>
+                <div class="form-hint" style="margin-top:10px;">Перейти к управлению фотографиями товаров</div>
+            </div>
+        </div>
+        
+        <button type="submit" name="save_gallery" class="btn-save">💾 Сохранить настройки</button>
+    </form>
+</div>

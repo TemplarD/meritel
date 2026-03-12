@@ -50,7 +50,7 @@ include("_csrf.php");
 	</div>
 	<?php include("_footer.php"); ?>
 	<div class="pop-up-bg none"></div>
-	<div class="pop-up write-us-pop none">
+	<div class="pop-up write-us-pop compact none">
 		<div class="h2">Написать нам письмо</div>
 		<form method="post" class="write-us-form">
 			<label>Ваше имя или название организации:</label>
