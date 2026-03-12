@@ -7,10 +7,10 @@
     border: 1px solid #ccc;
     border-bottom: 3px solid #500106;
     padding: 0;
-    margin: 10px 0 20px 0;
+    margin: 0 0 20px 0;
     width: 100%;
     position: relative;
-    z-index: 1000;
+    z-index: 9999;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
@@ -61,7 +61,7 @@
     border-top: 2px solid #500106;
     min-width: 220px;
     display: none;
-    z-index: 1001;
+    z-index: 10000;
 }
 
 .main-nav li:hover .dropdown {

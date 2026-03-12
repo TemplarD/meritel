@@ -80,7 +80,7 @@ if ($_SESSION['lginin'] != 2){ ?>
 		<?php if($_SESSION['lginin'] == 1 && ($_POST['login'] != 'none' || $_POST['pass'] != 'none')){ ?><li style="float:right;display:block;height:30px;list-style:none;"><form method='post' action='cms.php'><input type='hidden' name='login' value='none' /><input type='hidden' name='pass' value='none' /><input style="display:block;padding:3px 10px;background:#fff;border-radius:5px;color:#011393;border:0;" type='submit' value='Выйти' /></form></li><?php } ?>
 		<li style="float:right;display:block;height:30px;list-style:none;"><a style="display:block;padding:5px 10px;background:#fff;border-radius:5px;color:#011393;" target="_blank" href="/">Сайт</a></li>
 		<?php foreach($pages AS $key => $val){ ?>
-			<?php if(in_array($key, $_SESSION['accesss'])){ ?>
+			<?php if($_SESSION['accesss'][0] == 'all' || in_array($key, $_SESSION['accesss'])){ ?>
 		<li style="float:left;display:block;height:30px;list-style:none;"><a style="display:block;padding:5px 7px;background:#fff;border-radius:5px;color:#011393;<?php if($key+3==$go){ ?>text-decoration:none;font-weight:bold;<?php } ?>" href="cms.php?go=<?php echo $key+3; ?>"><?php echo $val; ?></a></li>
 			<?php } ?>
 		<?php } ?>
