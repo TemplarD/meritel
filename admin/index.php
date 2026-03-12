@@ -32,17 +32,19 @@ include("_csrf.php");
 </head>
 <body>
 	<div class="move-end"></div>
+	
+	<!-- Header с логотипом -->
+	<?php include("_header_top.php"); ?>
+	
+	<!-- Меню на всю ширину -->
+	<div style="background: #fff; border-bottom: 2px solid #500106; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+		<div style="max-width: 1024px; margin: 0 auto; padding: 0 20px;">
+			<?php include("_new_menu.php"); ?>
+		</div>
+	</div>
+	
 	<div class="main">
-		<?php
-		// Получаем количество товаров в корзине
-		$in_cart = pdo_query("SELECT SUM(kol) FROM ".MySQLprefix."_cart WHERE user=? AND status=1", [$user]);
-		$in_cart_res = $in_cart->fetchColumn();
-		$in_cart_res_echo = $in_cart_res ?: 0;
-
-		include("_header_top.php");
-		include("_new_menu.php");
-		?>
-		<div class="telo" style="margin-top: 0;">
+		<div class="telo" style="margin-top: 20px;">
 		<?php include("_".$url['target_type'].".php"); ?>
 		</div>
 	</div>

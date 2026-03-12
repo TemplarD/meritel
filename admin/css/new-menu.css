@@ -4,14 +4,14 @@
 /* Основное меню */
 .main-nav {
     background: linear-gradient(180deg, #f5f5f5 0%, #e0e0e0 100%);
-    border: 1px solid #ccc;
+    border: none;
     border-bottom: 3px solid #500106;
     padding: 0;
-    margin: 0 0 20px 0;
+    margin: 0;
     width: 100%;
     position: relative;
     z-index: 9999;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: none;
 }
 
 .main-nav ul {
