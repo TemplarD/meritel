@@ -280,3 +280,108 @@
     top: -5px;
     right: -5px;
 }
+
+/* === Дополнительная адаптивность === */
+@media (max-width: 480px) {
+    .main-nav a {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+    
+    .hed table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .logo img {
+        max-width: 150px;
+        height: auto;
+    }
+    
+    .te p {
+        font-size: 14px;
+    }
+    
+    .nap {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    .goods li {
+        min-width: 140px;
+    }
+    
+    .goods li img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .pagetext h1 {
+        font-size: 20px;
+    }
+    
+    .pagetext h2 {
+        font-size: 18px;
+    }
+}
+
+/* Убираем горизонтальный скролл */
+body, html {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.main, .wide, .telo {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Товары и услуги - адаптивная сетка */
+.goods, .services-grid, .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 10px;
+}
+
+@media (max-width: 480px) {
+    .goods, .services-grid, .catalog-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 10px;
+    }
+}
+
+/* Картинки в товарах */
+.goods li img, .catalog-grid img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* Фильтры - делаем удобными */
+.filters, .sort-block {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.filters select, .filters input,
+.sort-block select, .sort-block input {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .filters, .sort-block {
+        flex-direction: column;
+    }
+    
+    .filters select, .filters input,
+    .sort-block select, .sort-block input {
+        width: 100%;
+    }
+}
