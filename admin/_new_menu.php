@@ -120,15 +120,13 @@ function toggleSubmenu(el) {
 document.addEventListener('DOMContentLoaded', function() {
     var currentPath = window.location.pathname;
     var navLinks = document.querySelectorAll('.main-nav > ul > li > a');
-    
     navLinks.forEach(function(link) {
         var href = link.getAttribute('href');
-        if (href === '/' && currentPath === '/') {
-            link.classList.add('active');
-        } else if (href !== '/' && currentPath.indexOf(href) === 0) {
-            link.classList.add('active');
-        }
+        if (href === '#' || href === '' || href.indexOf('#') === 0) return;
+        if (href === '/' && currentPath === '/') link.classList.add('active');
+        else if (href !== '/' && currentPath.indexOf(href) === 0) link.classList.add('active');
     });
+});
 });
 
 function toggleMobileMenu() {

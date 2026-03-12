@@ -4,7 +4,6 @@
 		?>
 		<div style="width: 100%; padding: 20px;">
 			<?php if($additional[49]==0){ ?>
-				?>
 				<?php if($additional[49]==0){ ?>
 				<div class="pagetext">
 					<h1><?=$seo["h1"]?></h1>
