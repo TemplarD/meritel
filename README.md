@@ -104,8 +104,6 @@ DB_PREFIX=viz620
 
 ## 📞 Контакты
 
-- **Сайт:** https://meritel43.ru
-- **Email:** info@meritel43.ru
 
 ## 📄 Лицензия
 

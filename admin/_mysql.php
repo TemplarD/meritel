@@ -30,31 +30,7 @@ if (function_exists('mysql_connect')) {
     }
 }
 
-/**
- * PDO подключение (новый стандарт)
- */
-function get_pdo() {
-    static $pdo = null;
-    if ($pdo === null) {
-        try {
-            $db_host = getenv('DB_HOST') ?: 'db';
-            $db_name = getenv('DB_NAME') ?: 'viz620';
-            $db_user = getenv('DB_USER') ?: 'meritel';
-            $db_pass = getenv('DB_PASSWORD') ?: 'meritel123';
-            
-            $dsn = "mysql:host=$db_host;dbname=$db_name;charset=utf8";
-            $options = [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            ];
-            $pdo = new PDO($dsn, $db_user, $db_pass, $options);
-        } catch (PDOException $e) {
-            error_log("PDO Error: " . $e->getMessage());
-            return null;
-        }
-    }
-    return $pdo;
-}
+// PDO подключение определяется в _pdo.php (функция pdo_connect)
 
 function textTrimm($text, $length){
 	$s_text = strip_tags($text);
