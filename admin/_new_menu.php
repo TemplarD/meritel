@@ -114,3 +114,29 @@ function toggleSubmenu(el) {
     el.parentElement.classList.toggle('open');
 }
 </script>
+
+<script>
+// Подсветка активного пункта меню
+document.addEventListener('DOMContentLoaded', function() {
+    var currentPath = window.location.pathname;
+    var navLinks = document.querySelectorAll('.main-nav > ul > li > a');
+    
+    navLinks.forEach(function(link) {
+        var href = link.getAttribute('href');
+        if (href === '/' && currentPath === '/') {
+            link.classList.add('active');
+        } else if (href !== '/' && currentPath.indexOf(href) === 0) {
+            link.classList.add('active');
+        }
+    });
+});
+
+function toggleMobileMenu() {
+    document.getElementById('mobileNav').classList.toggle('active');
+    document.querySelector('.mobile-overlay').classList.toggle('active');
+}
+
+function toggleSubmenu(el) {
+    el.parentElement.classList.toggle('open');
+}
+</script>

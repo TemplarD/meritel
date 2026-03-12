@@ -289,3 +289,11 @@
         transform: translateX(0);
     }
 }
+
+/* === Активный пункт меню === */
+.main-nav > ul > li > a.active {
+    background: linear-gradient(180deg, #500106 0%, #2a0c0e 100%) !important;
+    color: #ffffff !important;
+    font-weight: bold;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+}
