@@ -1,8 +1,17 @@
 <?php
-$HEVA_CMS = "3.1.5.20130222";
 session_start();
-include('_mysql.php');
-$Query = "UPDATE ".MySQLprefix."_cart SET kol=".$_POST['kol']." WHERE user='".$_SESSION['user']."' AND id=".$_POST['id'];
-$res3 = mysql_query($Query);
-echo mysql_result(mysql_query("SELECT SUM(kol) FROM ".MySQLprefix."_cart WHERE user='".$_SESSION['user']."' AND status=1"), 0);
+include('_pdo.php');
+
+pdo_update(
+    MySQLprefix."_cart",
+    ['kol' => (int)$_POST['kol']],
+    "user = ? AND id = ?",
+    [$_SESSION['user'], (int)$_POST['id']]
+);
+
+$total = pdo_fetch_column(
+    "SELECT SUM(kol) FROM ".MySQLprefix."_cart WHERE user = ? AND status = 1",
+    [$_SESSION['user']]
+);
+echo $total ?: 0;
 ?>

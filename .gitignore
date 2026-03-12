@@ -87,6 +87,7 @@ desktop.ini
 *.backup
 *.old
 index.html.bak
+admin/*.bak
 
 # === Скрипты запуска локально ===
 start.sh
