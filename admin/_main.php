@@ -7,7 +7,7 @@
 				$ar_to = array('
 <div class="pop-up write-us-pop" style="position:relative;left:0;top:0;margin:20px auto;z-index:1;background:#F9F9F9;box-shadow:0 0 5px #ccc;padding:20px 20px 0 20px;overflow:hidden">
 	<form method="post" class="write-us-form">
-		'.csrf_field().'
+		
 		<label>Ваше имя или название организации:</label>
 		<input type="text" name="name" />
 		<label>Контактная информация (телефон или e-mail):</label>
@@ -17,7 +17,7 @@
 	</form>
 	<a class="submit write-us-submit">Отправить</a>
 </div>');
-				if($additional[10]==0)
+<?php 				if($additional[10]==0)
 					include('_slider_on_main.php');
 				?>
 				<?php if($additional[49]==0){ ?>
