@@ -3,21 +3,31 @@
  * Новое верхнее меню с категориями и услугами
  */
 
-// Получаем категории
-$categories = pdo_fetch_all(
-    "SELECT c.id, c.name, c.p_id, u.url 
-     FROM ".MySQLprefix."_categories c
-     LEFT JOIN ".MySQLprefix."_urls u ON c.id = u.target_id AND u.target_type = 'categories'
-     WHERE c.p_id = 0
-     ORDER BY c.sort_id ASC"
-);
+// Получаем категории через mysql (для совместимости)
+$categories_result = mysql_query("
+    SELECT c.id, c.name, c.p_id, u.url 
+    FROM ".MySQLprefix."_categories c
+    LEFT JOIN ".MySQLprefix."_urls u ON c.id = u.target_id AND u.target_type = 'categories'
+    WHERE c.p_id = 0
+    ORDER BY c.sort_id ASC
+");
+
+$categories = [];
+while($cat = mysql_fetch_assoc($categories_result)) {
+    $categories[] = $cat;
+}
 
 // Получаем услуги (mypages с place='left')
-$services = pdo_fetch_all(
-    "SELECT id, menu, url FROM ".MySQLprefix."_mypages 
-     WHERE place = 'left' AND shows = 1 
-     ORDER BY sort_id ASC"
-);
+$services_result = mysql_query("
+    SELECT id, menu, url FROM ".MySQLprefix."_mypages 
+    WHERE place = 'left' AND shows = 1 
+    ORDER BY sort_id ASC
+");
+
+$services = [];
+while($srv = mysql_fetch_assoc($services_result)) {
+    $services[] = $srv;
+}
 ?>
 
 <!-- Мобильная кнопка -->
