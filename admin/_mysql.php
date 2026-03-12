@@ -2,10 +2,11 @@
 /**
  * Конфигурация базы данных
  * 
- * ВНИМАНИЕ: Этот файл содержит чувствительные данные!
- * Для продакшена используйте переменные окружения.
+ * Поддерживает оба режима:
+ * - mysql_* (устаревший, для совместимости)
+ * - PDO (рекомендуемый)
  * 
- * Настройте параметры подключения ниже или используйте .env файл.
+ * Для продакшена используйте переменные окружения.
  */
 
 define(MySQLprefix, "viz620");
@@ -17,9 +18,43 @@ $db_user = getenv('DB_USER') ?: 'meritel';
 $db_pass = getenv('DB_PASSWORD') ?: 'meritel123';
 $db_name = getenv('DB_NAME') ?: 'viz620';
 
-$m_Link = mysql_connect($db_host, $db_user, $db_pass) or die ("<!-- Ошибка подключения к серверу. -->");
-mysql_query("SET NAMES utf8");
-mysql_select_db($db_name) or die ("<!-- Ошибка соединения с БД. -->");
+// Глобальное подключение
+$GLOBALS['db_link'] = null;
+
+// Попытка mysql подключения (для обратной совместимости)
+if (function_exists('mysql_connect')) {
+    $GLOBALS['db_link'] = mysql_connect($db_host, $db_user, $db_pass);
+    if ($GLOBALS['db_link']) {
+        mysql_query("SET NAMES utf8");
+        mysql_select_db($db_name);
+    }
+}
+
+/**
+ * PDO подключение (новый стандарт)
+ */
+function get_pdo() {
+    static $pdo = null;
+    if ($pdo === null) {
+        try {
+            $db_host = getenv('DB_HOST') ?: 'db';
+            $db_name = getenv('DB_NAME') ?: 'viz620';
+            $db_user = getenv('DB_USER') ?: 'meritel';
+            $db_pass = getenv('DB_PASSWORD') ?: 'meritel123';
+            
+            $dsn = "mysql:host=$db_host;dbname=$db_name;charset=utf8";
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ];
+            $pdo = new PDO($dsn, $db_user, $db_pass, $options);
+        } catch (PDOException $e) {
+            error_log("PDO Error: " . $e->getMessage());
+            return null;
+        }
+    }
+    return $pdo;
+}
 
 function textTrimm($text, $length){
 	$s_text = strip_tags($text);
