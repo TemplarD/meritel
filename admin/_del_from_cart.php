@@ -1,6 +1,7 @@
 <?php
 session_start();
 include('_pdo.php');
+include('_csrf.php');
 
 pdo_delete(
     MySQLprefix."_cart",

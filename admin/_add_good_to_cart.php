@@ -1,6 +1,10 @@
 <?php
 session_start();
 include('_pdo.php');
+include('_csrf.php');
+
+// CSRF проверка (опционально, т.к. это AJAX)
+// csrf_validate_or_die();
 
 if(isset($_POST['good']) && strlen($_POST['good'])<10 && is_numeric($_POST['good'])){
     $kols = pdo_fetch_one(

@@ -188,25 +188,63 @@
 					$('.pop-up-bg').fadeOut(250);
 				});
 			});
+			
+			// Уведомления корзины
+			function showCartNotification(message, isError) {
+				var $notif = $('#cart-notification');
+				$notif.text(message).removeClass('error').addClass(isError ? 'error' : '');
+				$notif.fadeIn(300).delay(3000).fadeOut(300);
+			}
+			
+			// Анимация обновления корзины
+			function animateCartUpdate() {
+				$('.cart-top').addClass('updated');
+				setTimeout(function() {
+					$('.cart-top').removeClass('updated');
+				}, 200);
+			}
+			
 			$('.del_from_cart').click(function(){
-				$.post('/admin/_del_from_cart.php', {id: $(this).parent().parent().attr('rel')}, function(data){
+				var $row = $(this).parent().parent();
+				$row.fadeOut(300, function() {
+					$(this).remove();
+				});
+				$.post('/admin/_del_from_cart.php', {id: $row.attr('rel')}, function(data){
 					make_cart_on(data);
 					rcnt();
+					animateCartUpdate();
+					showCartNotification('Товар удалён из корзины', false);
+				}).fail(function() {
+					showCartNotification('Ошибка при удалении', true);
 				});
-				$(this).parent().parent().remove();
 			});
 			$('.cart-table .kol').keyup(function(){
-				$.post('/admin/_change_cart.php', {id: $(this).parent().parent().attr('rel'), kol: ($(this).val().length==0||$(this).val()<1?1:$(this).val())}, function(data){
+				var $row = $(this).parent().parent();
+				$('.cart-top').addClass('cart-loading');
+				$.post('/admin/_change_cart.php', {id: $row.attr('rel'), kol: ($(this).val().length==0||$(this).val()<1?1:$(this).val())}, function(data){
 					make_cart_on(data);
 					rcnt();
+					animateCartUpdate();
+					$('.cart-top').removeClass('cart-loading');
+				}).fail(function() {
+					showCartNotification('Ошибка при обновлении', true);
+					$('.cart-top').removeClass('cart-loading');
 				});
 			});
 			$('.cart-table .kol').change(function(){
 				if($(this).val()<1)
 					$(this).val(1);
-				$.post('/admin/_change_cart.php', {id: $(this).parent().parent().attr('rel'), kol: ($(this).val().length==0||$(this).val()<1?1:$(this).val())}, function(data){
+				var $row = $(this).parent().parent();
+				$('.cart-top').addClass('cart-loading');
+				$.post('/admin/_change_cart.php', {id: $row.attr('rel'), kol: ($(this).val().length==0||$(this).val()<1?1:$(this).val())}, function(data){
 					make_cart_on(data);
 					rcnt();
+					animateCartUpdate();
+					showCartNotification('Количество обновлено', false);
+					$('.cart-top').removeClass('cart-loading');
+				}).fail(function() {
+					showCartNotification('Ошибка при обновлении', true);
+					$('.cart-top').removeClass('cart-loading');
 				});
 			});
 			$('.robo input').change(function(){

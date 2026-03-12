@@ -107,5 +107,8 @@ include("_csrf.php");
 		<div class="result_ajax2"></div>
 		<a class="clz"></a>
 	</div>
+	
+	<!-- AJAX уведомления корзины -->
+	<div id="cart-notification" class="cart-notification"></div>
 </body>
 </html>

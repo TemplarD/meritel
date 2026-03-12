@@ -271,3 +271,80 @@ body{margin:0 auto}
 			.result_ajax2 a{display:block;font:14px/18px Arial;}
 			.result_ajax2 b{display:block;font:14px/18px Arial;color:#0079C0;margin:0 auto}
 .none{display:none}
+/* === AJAX уведомления корзины === */
+.cart-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    display: none;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.cart-notification.error {
+    background: #f44336;
+}
+
+.cart-notification.removing {
+    animation: slideOutRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+/* Анимация обновления корзины */
+.cart-top {
+    transition: transform 0.2s ease;
+}
+
+.cart-top.updated {
+    transform: scale(1.2);
+}
+
+/* Индикатор загрузки */
+.cart-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.cart-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
