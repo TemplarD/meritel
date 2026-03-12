@@ -1,7 +1,6 @@
 <?php
 /**
  * Новое верхнее меню с категориями и услугами
- * _mysql.php должен быть подключён в index.php
  */
 
 // Получаем категории через mysql (для совместимости)
@@ -105,36 +104,46 @@ while($srv = mysql_fetch_assoc($services_result)) {
 </div>
 
 <script>
-function toggleMobileMenu() {
-    document.getElementById('mobileNav').classList.toggle('active');
-    document.querySelector('.mobile-overlay').classList.toggle('active');
-}
-
-function toggleSubmenu(el) {
-    el.parentElement.classList.toggle('open');
-}
-</script>
-
-<script>
 // Подсветка активного пункта меню
-document.addEventListener('DOMContentLoaded', function() {
+(function() {
     var currentPath = window.location.pathname;
     var navLinks = document.querySelectorAll('.main-nav > ul > li > a');
+    
+    // Сначала снимаем active со всех
+    navLinks.forEach(function(link) {
+        link.classList.remove('active');
+    });
+    
+    // Находим активный
     navLinks.forEach(function(link) {
         var href = link.getAttribute('href');
-        if (href === '#' || href === '' || href.indexOf('#') === 0) return;
-        if (href === '/' && currentPath === '/') link.classList.add('active');
-        else if (href !== '/' && currentPath.indexOf(href) === 0) link.classList.add('active');
+        // Пропускаем ссылки с #
+        if (!href || href === '#' || href.indexOf('#') === 0) {
+            return;
+        }
+        // Главная
+        if (href === '/' && currentPath === '/') {
+            link.classList.add('active');
+        }
+        // Остальные
+        else if (href !== '/' && currentPath.indexOf(href) === 0) {
+            link.classList.add('active');
+        }
     });
-});
-});
+})();
 
 function toggleMobileMenu() {
-    document.getElementById('mobileNav').classList.toggle('active');
-    document.querySelector('.mobile-overlay').classList.toggle('active');
+    var nav = document.getElementById('mobileNav');
+    var overlay = document.querySelector('.mobile-overlay');
+    if (nav && overlay) {
+        nav.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
 }
 
 function toggleSubmenu(el) {
-    el.parentElement.classList.toggle('open');
+    if (el && el.parentElement) {
+        el.parentElement.classList.toggle('open');
+    }
 }
 </script>
