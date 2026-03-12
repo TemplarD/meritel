@@ -15,7 +15,7 @@ services:
         a2enmod rewrite &&
         echo 'ServerName localhost' >> /etc/apache2/apache2.conf &&
         sed -i 's|AllowOverride None|AllowOverride All|g' /etc/apache2/apache2.conf &&
-        docker-php-ext-install mysql &&
+        docker-php-ext-install mysql pdo_mysql &&
         apache2-foreground
       "
 
