@@ -1,6 +1,7 @@
 <?php
 session_start();
-include('_pdo.php');
+include("_mysql.php");
+include("_pdo.php");
 include('_csrf.php');
 
 // CSRF проверка (опционально, т.к. это AJAX)

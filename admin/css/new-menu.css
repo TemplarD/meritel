@@ -342,3 +342,23 @@
 .cart-in-nav:hover {
     background: rgba(80,1,6,0.2) !important;
 }
+
+/* === Полная прозрачность меню по сторонам === */
+.main, .wide, .telo {
+    background: transparent !important;
+}
+
+.main {
+    box-shadow: none !important;
+}
+
+/* Контейнер меню на всю ширину */
+.main-nav {
+    max-width: 100% !important;
+    margin: 0 !important;
+}
+
+/* Прозрачный фон для header контейнера */
+div[style*="border-bottom: 2px solid #500106"] {
+    background: transparent !important;
+}

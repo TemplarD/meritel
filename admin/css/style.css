@@ -405,3 +405,59 @@ body{margin:0 auto}
         top: 50% !important;
     }
 }
+
+/* === Товары - убрать подчеркивание === */
+.goods li a span {
+    text-decoration: none !important;
+    color: #262626 !important;
+    transition: color 0.3s ease;
+}
+
+.goods li a:hover span {
+    text-decoration: underline !important;
+    color: #500106 !important;
+}
+
+/* Убрать рамку вокруг фото */
+.goods li img,
+.good-main-pic img {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Адаптивность товаров - отступы */
+.goods {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+    gap: 20px !important;
+    padding: 10px !important;
+}
+
+.goods li {
+    margin: 0 !important;
+    padding: 15px !important;
+    background: #fff !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    transition: transform 0.3s ease !important;
+}
+
+.goods li:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15) !important;
+}
+
+/* Мобильные */
+@media (max-width: 768px) {
+    .goods {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+        gap: 15px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .goods {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        gap: 10px !important;
+    }
+}

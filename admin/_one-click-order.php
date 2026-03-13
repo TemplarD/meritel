@@ -1,5 +1,6 @@
 <?
 session_start();
+include("_mysql.php");
 include("_pdo.php");
 include("_csrf.php");
 include("_additional.php");
