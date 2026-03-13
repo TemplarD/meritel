@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<link rel="stylesheet" type="text/css" href="/admin/css/style.css" media="screen, projection" />
 	<link rel="stylesheet" type="text/css" href="/admin/css/new-menu.css?v=7" media="screen, projection" />
-	<link rel="stylesheet" type="text/css" href="/admin/css/goods-responsive.css" media="screen, projection" />
+	<link rel="stylesheet" type="text/css" href="/admin/css/goods-fix.css" media="screen, projection" />
 	<?php if($additional[69]==1){ ?><link rel="stylesheet" type="text/css" href="/admin/css/responsitive.css" media="screen, projection" /><?php } ?>
 	<link rel="stylesheet" type="text/css" href="/admin/css/jquery.fancybox-1.3.4.css" media="screen, projection" />
 	<script type="text/javascript" src="/admin/js/jquery-3.7.1.min.js"></script>

@@ -1,0 +1,274 @@
+/* === ИСПРАВЛЕНИЕ КНОПКИ "ЗАКАЗАТЬ" === */
+.goods li .to-cart,
+.goods li .buy-it,
+.goods li .adtocart,
+.but-26 {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: auto !important;
+    min-width: 140px !important;
+    padding: 10px 20px !important;
+    margin: 15px auto 0 auto !important;
+    text-align: center !important;
+    line-height: 1.4 !important;
+    vertical-align: middle !important;
+    text-decoration: none !important;
+    border-radius: 5px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+    box-sizing: border-box !important;
+}
+
+/* === ИСПРАВЛЕНИЕ ПРОПУСКОВ В СЕТКЕ === */
+.goods {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+    gap: 20px !important;
+    padding: 15px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    grid-auto-flow: row dense !important;
+    justify-content: stretch !important;
+    align-content: start !important;
+}
+
+.goods li {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px 15px !important;
+    box-sizing: border-box !important;
+    background: #fff !important;
+    border-radius: 10px !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.goods li:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+}
+
+/* Фото */
+.goods li img {
+    display: block !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: 200px !important;
+    object-fit: contain !important;
+    margin: 0 auto 15px auto !important;
+}
+
+/* Название */
+.goods li a span {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 0 12px 0 !important;
+    padding: 0 !important;
+    line-height: 1.5 !important;
+    font-size: 14px !important;
+    color: #262626 !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    flex-grow: 1 !important;
+}
+
+.goods li a:hover span {
+    text-decoration: underline !important;
+    color: #500106 !important;
+}
+
+/* Цена */
+.goods li b {
+    display: block !important;
+    width: 100% !important;
+    margin: 10px 0 !important;
+    padding: 8px 0 !important;
+    font-size: 16px !important;
+    font-weight: bold !important;
+    color: #500106 !important;
+    text-align: center !important;
+    background: #f9f9f9 !important;
+    border-radius: 5px !important;
+}
+
+/* === ВИД ПЛИТКА/СПИСОК === */
+/* Плитка (по умолчанию) */
+.goods.float,
+.goods:not(.list):not(.block) {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+}
+
+/* Список (построчно) */
+.goods.list,
+.goods.block {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+}
+
+.goods.list li,
+.goods.block li {
+    flex-direction: row !important;
+    text-align: left !important;
+    align-items: center !important;
+    padding: 20px !important;
+}
+
+.goods.list li img,
+.goods.block li img {
+    max-width: 120px !important;
+    max-height: 120px !important;
+    margin: 0 20px 0 0 !important;
+}
+
+.goods.list li a span,
+.goods.block li a span {
+    flex-grow: 1 !important;
+    text-align: left !important;
+    margin: 0 20px 0 0 !important;
+}
+
+.goods.list li b,
+.goods.block li b {
+    width: auto !important;
+    margin: 0 20px 0 0 !important;
+}
+
+.goods.list li .to-cart,
+.goods.list li .buy-it,
+.goods.block li .to-cart,
+.goods.block li .buy-it {
+    width: auto !important;
+    margin: 0 !important;
+}
+
+/* Расширенный вид с описанием */
+.goods.expanded {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+}
+
+.goods.expanded li {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    padding: 25px !important;
+}
+
+.goods.expanded li img {
+    max-width: 200px !important;
+    max-height: 200px !important;
+    margin: 0 25px 0 0 !important;
+}
+
+.goods.expanded li a span {
+    flex-grow: 1 !important;
+    text-align: left !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+}
+
+.goods.expanded li b {
+    width: auto !important;
+    font-size: 18px !important;
+}
+
+.goods.expanded li .to-cart,
+.goods.expanded li .buy-it {
+    padding: 12px 30px !important;
+    font-size: 15px !important;
+}
+
+/* === АДАПТИВНОСТЬ === */
+@media (max-width: 768px) {
+    .goods {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+        gap: 15px !important;
+        padding: 10px !important;
+    }
+    
+    .goods li {
+        padding: 15px 10px !important;
+    }
+    
+    .goods li img {
+        max-height: 150px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .goods li a span {
+        font-size: 13px !important;
+    }
+    
+    .goods li b {
+        font-size: 15px !important;
+        padding: 6px 0 !important;
+    }
+    
+    .goods li .to-cart,
+    .goods li .buy-it {
+        padding: 8px 18px !important;
+        font-size: 13px !important;
+        min-width: 120px !important;
+    }
+    
+    /* Список на мобильных */
+    .goods.list li,
+    .goods.block li {
+        flex-direction: column !important;
+        text-align: center !important;
+    }
+    
+    .goods.list li img,
+    .goods.block li img {
+        max-width: 100% !important;
+        margin: 0 0 15px 0 !important;
+    }
+    
+    .goods.list li a span,
+    .goods.block li a span {
+        text-align: center !important;
+        margin: 0 0 10px 0 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .goods {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+        gap: 12px !important;
+        padding: 8px !important;
+    }
+    
+    .goods li {
+        padding: 12px 8px !important;
+    }
+    
+    .goods li img {
+        max-height: 120px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .goods li a span {
+        font-size: 12px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .goods li b {
+        font-size: 14px !important;
+        padding: 5px 0 !important;
+    }
+    
+    .goods li .to-cart,
+    .goods li .buy-it {
+        padding: 6px 15px !important;
+        font-size: 12px !important;
+        min-width: 100px !important;
+    }
+}
