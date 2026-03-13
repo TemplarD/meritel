@@ -362,3 +362,25 @@
 div[style*="border-bottom: 2px solid #500106"] {
     background: transparent !important;
 }
+
+/* === Фон у кнопок меню === */
+.main-nav > ul > li > a {
+    background: rgba(255, 255, 255, 0.9) !important;
+    margin: 0 5px !important;
+}
+
+.main-nav > ul > li > a:hover,
+.main-nav > ul > li > a.active {
+    background: linear-gradient(180deg, #500106 0%, #2a0c0e 100%) !important;
+    color: #ffffff !important;
+}
+
+/* Корзина с фоном */
+.cart-in-nav {
+    background: rgba(255, 255, 255, 0.9) !important;
+    margin: 0 5px !important;
+}
+
+.cart-in-nav:hover {
+    background: rgba(245, 245, 245, 0.95) !important;
+}

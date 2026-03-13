@@ -461,3 +461,40 @@ body{margin:0 auto}
         gap: 10px !important;
     }
 }
+
+/* === Товары - нормальные пропорции === */
+.goods li {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    min-height: auto !important;
+}
+
+.goods li img {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    margin-bottom: 15px !important;
+}
+
+.goods li a span {
+    display: block !important;
+    margin-bottom: 10px !important;
+    line-height: 1.4 !important;
+    min-height: auto !important;
+}
+
+.goods li b {
+    display: block !important;
+    margin-top: auto !important;
+    padding-top: 10px !important;
+}
+
+/* Кнопка "В корзину" */
+.goods li .to-cart,
+.goods li .buy-it {
+    margin-top: 10px !important;
+    width: auto !important;
+    padding: 8px 20px !important;
+}
