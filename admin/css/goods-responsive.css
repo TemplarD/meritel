@@ -220,3 +220,46 @@
         margin: 5px 0 !important;
     }
 }
+
+/* === Исправление пропусков в сетке === */
+.goods {
+    grid-auto-flow: dense !important;
+    justify-items: stretch !important;
+}
+
+.goods li {
+    justify-self: stretch !important;
+    height: auto !important;
+    min-height: auto !important;
+}
+
+/* === Кнопка "Заказ" по центру === */
+.goods li .to-cart,
+.goods li .buy-it,
+.goods li .adtocart {
+    display: block !important;
+    width: 80% !important;
+    margin: 10px auto 0 auto !important;
+    text-align: center !important;
+}
+
+/* === Плитка/Список === */
+.goods.list {
+    grid-template-columns: 1fr !important;
+}
+
+.goods.list li {
+    flex-direction: row !important;
+    text-align: left !important;
+    align-items: center !important;
+}
+
+.goods.list li img {
+    max-width: 150px !important;
+    margin-bottom: 0 !important;
+    margin-right: 20px !important;
+}
+
+.goods.list li a span {
+    flex-grow: 1 !important;
+}
