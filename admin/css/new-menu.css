@@ -297,3 +297,48 @@
     background: linear-gradient(180deg, #500106 0%, #2a0c0e 100%) !important;
     color: #ffffff !important;
 }
+
+/* === Центрирование меню и прозрачный фон === */
+.main-nav {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    padding: 10px 0 !important;
+}
+
+.main-nav > ul {
+    justify-content: center !important;
+    background: transparent !important;
+}
+
+.main-nav > ul > li > a {
+    background: transparent !important;
+    padding: 12px 25px !important;
+    border-radius: 5px !important;
+    transition: all 0.3s ease !important;
+}
+
+.main-nav > ul > li > a:hover,
+.main-nav > ul > li > a.active {
+    background: linear-gradient(180deg, #500106 0%, #2a0c0e 100%) !important;
+    color: #ffffff !important;
+}
+
+/* Выпадающее меню */
+.main-nav .dropdown {
+    background: #fff !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    border: 1px solid #ccc !important;
+    border-top: 2px solid #500106 !important;
+}
+
+/* Корзина */
+.cart-in-nav {
+    background: rgba(80,1,6,0.1) !important;
+    border-radius: 5px !important;
+}
+
+.cart-in-nav:hover {
+    background: rgba(80,1,6,0.2) !important;
+}
