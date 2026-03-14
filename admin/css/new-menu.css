@@ -384,3 +384,15 @@ div[style*="border-bottom: 2px solid #500106"] {
 .cart-in-nav:hover {
     background: rgba(245, 245, 245, 0.95) !important;
 }
+
+/* Скрываем мобильную кнопку на десктопе */
+.mobile-menu-btn {
+    display: none !important;
+}
+
+/* Показываем только на мобильных */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block !important;
+    }
+}
