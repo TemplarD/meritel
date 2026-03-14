@@ -458,3 +458,5 @@
 	<?=$additional[7]?>
 <!-- Slider Fix CSS -->
 <link rel="stylesheet" type="text/css" href="/admin/css/slider-fix.css" media="screen, projection" />
+<!-- Contacts Page CSS -->
+<link rel="stylesheet" type="text/css" href="/admin/css/contacts-page.css" media="screen, projection" />
