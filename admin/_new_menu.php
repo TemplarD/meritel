@@ -62,7 +62,7 @@ while($srv = mysql_fetch_assoc($services_nested_result)) {
         
         <!-- Услуги с выпадающим списком и вложенностью -->
         <li class="services-menu">
-            <a href="#" class="services-btn">Услуги ▾</a>
+            <a href="#" class="services-btn">Услуги</a>
             <ul class="dropdown">
                 <!-- Основные услуги -->
                 <?php foreach($services as $service): ?>
