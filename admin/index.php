@@ -23,6 +23,11 @@ include("_additional.php");
 include("_url.php");
 include("_pdo.php");
 include("_csrf.php");
+
+// Получаем количество товаров в корзине
+$in_cart = pdo_query("SELECT SUM(kol) FROM ".MySQLprefix."_cart WHERE user=? AND status=1", [$user]);
+$in_cart_res = $in_cart->fetchColumn();
+$in_cart_res_echo = $in_cart_res ?: 0;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
