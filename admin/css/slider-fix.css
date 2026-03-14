@@ -113,3 +113,23 @@
         margin: 0 4px !important;
     }
 }
+
+/* === ШАГ 2: ИСПРАВЛЕНИЕ ПРОПУСКОВ === */
+
+/* Скрываем пустые категории */
+.goods li:has(img[src*="folder.png"]):empty,
+.goods li:has(a[href*="/katalog/"]:only-child) {
+    display: none !important;
+}
+
+/* Уплотняем сетку */
+.goods {
+    grid-auto-flow: dense !important;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+}
+
+/* Если категория пустая - показываем иконку папки */
+.goods li img[src*="folder.png"] {
+    max-width: 100px !important;
+    opacity: 0.7 !important;
+}
