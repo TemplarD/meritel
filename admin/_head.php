@@ -460,3 +460,5 @@
 <link rel="stylesheet" type="text/css" href="/admin/css/slider-fix.css" media="screen, projection" />
 <!-- Contacts Page CSS -->
 <link rel="stylesheet" type="text/css" href="/admin/css/contacts-page.css" media="screen, projection" />
+<!-- Contacts Fix CSS -->
+<link rel="stylesheet" type="text/css" href="/admin/css/contacts-fix.css" media="screen, projection" />
