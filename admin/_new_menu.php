@@ -17,16 +17,28 @@ while($cat = mysql_fetch_assoc($categories_result)) {
     $categories[] = $cat;
 }
 
-// Получаем услуги (mypages с place='left')
+// Получаем основные услуги (p_id=0)
 $services_result = mysql_query("
     SELECT id, menu, url FROM ".MySQLprefix."_mypages 
-    WHERE place = 'left' AND shows = 1 
+    WHERE place = 'left' AND shows = 1 AND p_id = 0
     ORDER BY sort_id ASC
 ");
 
 $services = [];
 while($srv = mysql_fetch_assoc($services_result)) {
     $services[] = $srv;
+}
+
+// Получаем вложенные услуги
+$services_nested_result = mysql_query("
+    SELECT id, menu, url, p_id FROM ".MySQLprefix."_mypages 
+    WHERE place = 'left' AND shows = 1 AND p_id > 0
+    ORDER BY p_id ASC, sort_id ASC
+");
+
+$services_nested = [];
+while($srv = mysql_fetch_assoc($services_nested_result)) {
+    $services_nested[$srv['p_id']][] = $srv;
 }
 ?>
 
@@ -48,12 +60,21 @@ while($srv = mysql_fetch_assoc($services_result)) {
             </ul>
         </li>
         
-        <!-- Услуги с выпадающим списком -->
-        <li>
+        <!-- Услуги с выпадающим списком и вложенностью -->
+        <li class="services-menu">
             <a href="#" class="services-btn">Услуги ▾</a>
             <ul class="dropdown">
+                <!-- Основные услуги -->
                 <?php foreach($services as $service): ?>
                 <li><a href="/<?=$service['url']?>/"><?=$service['menu']?></a></li>
+                <!-- Вложенные услуги -->
+                <?php if(isset($services_nested[$service['id']])): ?>
+                    <?php foreach($services_nested[$service['id']] as $nested): ?>
+                    <li style="padding-left: 15px; border-left: 2px solid #500106;">
+                        <a href="/<?=$nested['url']?>/">→ <?=$nested['menu']?></a>
+                    </li>
+                    <?php endforeach; ?>
+                <?php endif; ?>
                 <?php endforeach; ?>
             </ul>
         </li>
@@ -92,6 +113,11 @@ while($srv = mysql_fetch_assoc($services_result)) {
             <ul class="dropdown">
                 <?php foreach($services as $service): ?>
                 <li><a href="/<?=$service['url']?>/"><?=$service['menu']?></a></li>
+                <?php if(isset($services_nested[$service['id']])): ?>
+                    <?php foreach($services_nested[$service['id']] as $nested): ?>
+                    <li style="padding-left: 15px;">→ <?=$nested['menu']?></li>
+                    <?php endforeach; ?>
+                <?php endif; ?>
                 <?php endforeach; ?>
             </ul>
         </li>

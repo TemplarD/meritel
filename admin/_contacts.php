@@ -38,7 +38,7 @@
         <div class="contact-item">
             <span class="contact-icon">📍</span>
             <h3>Адрес</h3>
-            <p>г. Киров, ул. Производственная, д. 1</p>
+            <p>г. Киров, ул. Заводская, д. 1</p>
         </div>
         
         <div class="contact-item">

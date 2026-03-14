@@ -28,7 +28,6 @@ include("_csrf.php");
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<?php include("_head.php"); ?>
-	<link rel="stylesheet" type="text/css" href="/admin/css/header.css" media="screen, projection" />
 </head>
 <body>
 	<div class="move-end"></div>
@@ -45,14 +44,23 @@ include("_csrf.php");
 	
 	<div class="main">
 		<div class="telo" style="margin-top: 20px;">
-		<?php include("_".$url['target_type'].".php"); ?>
+		<?php
+		// Контакты - отдельный шаблон
+		if($url['target_type']=='mypages' && $seo['url']=='kontakti-') {
+			include('_contacts.php');
+		} else {
+			include("_".$url['target_type'].".php");
+		}
+		?>
 		</div>
 	</div>
 	<?php include("_footer.php"); ?>
+	
 	<div class="pop-up-bg none"></div>
-	<div class="pop-up write-us-pop compact none">
+	<div class="pop-up write-us-pop none">
 		<div class="h2">Написать нам письмо</div>
 		<form method="post" class="write-us-form">
+			<?=csrf_field()?>
 			<label>Ваше имя или название организации:</label>
 			<input type="text" name="name" />
 			<label>Контактная информация (телефон или e-mail):</label>
@@ -124,9 +132,3 @@ include("_csrf.php");
 	<div id="cart-notification" class="cart-notification"></div>
 </body>
 </html>
-<!-- Контакты - подключаем новый шаблон -->
-<?php if($url['target_type']=='mypages' && $seo['url']=='kontakti-'): ?>
-    <?php include('_contacts.php'); ?>
-<?php else: ?>
-    <?php include("_".$url['target_type'].".php"); ?>
-<?php endif; ?>
