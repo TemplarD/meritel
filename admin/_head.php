@@ -504,3 +504,5 @@ $(document).ready(function() {
     }
 });
 </script>
+<!-- Header CSS -->
+<link rel="stylesheet" type="text/css" href="/admin/css/header.css" media="screen, projection" />
