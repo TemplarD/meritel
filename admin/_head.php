@@ -462,3 +462,45 @@
 <link rel="stylesheet" type="text/css" href="/admin/css/contacts-page.css" media="screen, projection" />
 <!-- Contacts Fix CSS -->
 <link rel="stylesheet" type="text/css" href="/admin/css/contacts-fix.css" media="screen, projection" />
+<!-- Final Fix CSS -->
+<link rel="stylesheet" type="text/css" href="/admin/css/final-fix.css" media="screen, projection" />
+
+<!-- Слайдер - исправление JS -->
+<script type="text/javascript">
+$(document).ready(function() {
+    // Исправляем слайдер
+    if (typeof slide_show_Delay === 'undefined') {
+        var slide_show_Delay = 4000;
+    }
+    
+    var currentSlide = 0;
+    var slides = $('.slide');
+    var totalSlides = slides.length;
+    
+    if (totalSlides > 1) {
+        // Показываем первый слайд
+        slides.eq(0).addClass('cur-slide');
+        
+        // Автопереключение
+        setInterval(function() {
+            slides.eq(currentSlide).removeClass('cur-slide');
+            currentSlide = (currentSlide + 1) % totalSlides;
+            slides.eq(currentSlide).addClass('cur-slide');
+            
+            // Обновляем навигацию
+            $('.sliderNav a').removeClass('on');
+            $('.sliderNav a').eq(currentSlide).addClass('on');
+        }, slide_show_Delay);
+        
+        // Клик по навигации
+        $('.sliderNav a').click(function(e) {
+            e.preventDefault();
+            slides.eq(currentSlide).removeClass('cur-slide');
+            currentSlide = $(this).index();
+            slides.eq(currentSlide).addClass('cur-slide');
+            $('.sliderNav a').removeClass('on');
+            $(this).addClass('on');
+        });
+    }
+});
+</script>
