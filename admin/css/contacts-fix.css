@@ -1,0 +1,91 @@
+/* === ШАГ 4: РАЗДЕЛЬНЫЕ НАСТРОЙКИ КОНТАКТОВ === */
+
+/* Стили для кликабельных контактов */
+.contact-phone {
+    color: #500106 !important;
+    text-decoration: none !important;
+    font-weight: bold !important;
+    transition: all 0.3s ease !important;
+}
+
+.contact-phone:hover {
+    color: #2a0c0e !important;
+    text-decoration: underline !important;
+}
+
+.contact-email {
+    color: #500106 !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+}
+
+.contact-email:hover {
+    color: #2a0c0e !important;
+    text-decoration: underline !important;
+}
+
+.contact-messenger {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 15px !important;
+    border-radius: 5px !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+    margin: 5px !important;
+}
+
+.contact-messenger.whatsapp {
+    background: #25D366 !important;
+    color: white !important;
+}
+
+.contact-messenger.telegram {
+    background: #0088cc !important;
+    color: white !important;
+}
+
+.contact-messenger.viber {
+    background: #7360f2 !important;
+    color: white !important;
+}
+
+.contact-messenger:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+}
+
+/* Контакты в шапке */
+.header-contacts {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    align-items: center !important;
+}
+
+.header-phone {
+    font-size: 18px !important;
+    font-weight: bold !important;
+    color: #262626 !important;
+    text-decoration: none !important;
+}
+
+.header-email {
+    font-size: 14px !important;
+    color: #666 !important;
+    text-decoration: none !important;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .header-contacts {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+    
+    .header-phone {
+        font-size: 16px !important;
+    }
+}
