@@ -124,3 +124,9 @@ include("_csrf.php");
 	<div id="cart-notification" class="cart-notification"></div>
 </body>
 </html>
+<!-- Контакты - подключаем новый шаблон -->
+<?php if($url['target_type']=='mypages' && $seo['url']=='kontakti-'): ?>
+    <?php include('_contacts.php'); ?>
+<?php else: ?>
+    <?php include("_".$url['target_type'].".php"); ?>
+<?php endif; ?>
