@@ -484,3 +484,84 @@
     border-color: #500106 !important;
     color: #fff !important;
 }
+
+/* === ИСПРАВЛЕНИЕ ВИДА СПИСОК === */
+
+/* Скрываем пустые категории */
+.goods li:has(a[href*="/katalog/"]:only-child):empty,
+.goods li:not(:has(img)):not(:has(.goods li)) {
+    display: none !important;
+}
+
+/* Вид список - работает через class="list" на li */
+.goods li.list {
+    flex-direction: row !important;
+    text-align: left !important;
+    align-items: center !important;
+    padding: 20px !important;
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-height: auto !important;
+}
+
+.goods li.list img {
+    max-width: 150px !important;
+    max-height: 150px !important;
+    margin: 0 20px 0 0 !important;
+}
+
+.goods li.list a span {
+    flex-grow: 1 !important;
+    text-align: left !important;
+    margin: 0 20px 0 0 !important;
+}
+
+.goods li.list b {
+    width: auto !important;
+    margin: 0 20px 0 0 !important;
+    background: transparent !important;
+    padding: 0 !important;
+}
+
+.goods li.list .to-cart,
+.goods li.list .buy-it {
+    width: auto !important;
+    margin: 0 !important;
+    min-width: 100px !important;
+}
+
+.goods li.list .desc {
+    display: block !important;
+    width: 100% !important;
+    margin: 10px 0 !important;
+    font-size: 13px !important;
+    color: #666 !important;
+    line-height: 1.6 !important;
+}
+
+/* Кнопки переключения вида */
+.sort-by .displ {
+    display: inline-block !important;
+    width: 30px !important;
+    height: 30px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    margin: 0 5px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+}
+
+.sort-by .displ.act {
+    background: #500106 !important;
+    border-color: #500106 !important;
+}
+
+.sort-by .displ.float::before {
+    content: '▦' !important;
+    font-size: 18px !important;
+}
+
+.sort-by .displ.block::before {
+    content: '☰' !important;
+    font-size: 16px !important;
+}
