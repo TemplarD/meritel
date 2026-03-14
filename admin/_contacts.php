@@ -59,6 +59,7 @@
     </div>
     
     <div class="contacts-map">
-        <iframe src="https://yandex.ru/map-widget/v1/?ll=49.667931%2C58.603336&z=12" frameborder="0" allowfullscreen="true"></iframe>
+        <!-- Карта Яндекс с адресом: г. Киров, ул. Заводская, д. 1 -->
+        <iframe src="https://yandex.ru/map-widget/v1/?ll=49.706063%2C58.596833&z=16&text=Киров%20Заводская%201" frameborder="0" allowfullscreen="true"></iframe>
     </div>
 </div>

@@ -1,4 +1,4 @@
-/* === ШАГ 4: РАЗДЕЛЬНЫЕ НАСТРОЙКИ КОНТАКТОВ === */
+/* === КОНТАКТЫ - СТИЛИ === */
 
 /* Стили для кликабельных контактов */
 .contact-phone {
@@ -24,6 +24,7 @@
     text-decoration: underline !important;
 }
 
+/* Мессенджеры - ИСПРАВЛЕНО */
 .contact-messenger {
     display: inline-flex !important;
     align-items: center !important;
@@ -87,93 +88,5 @@
     
     .header-phone {
         font-size: 16px !important;
-    }
-}
-
-/* === ШАГ 5: УСЛУГИ С ПОДМЕНЮ === */
-
-/* Выпадающее меню для услуг */
-.services-menu {
-    position: relative !important;
-}
-
-.services-menu .dropdown {
-    display: none !important;
-    position: absolute !important;
-    top: 100% !important;
-    left: 0 !important;
-    background: #fff !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
-    border: 1px solid #e0e0e0 !important;
-    border-top: 3px solid #500106 !important;
-    border-radius: 0 0 8px 8px !important;
-    min-width: 250px !important;
-    z-index: 1000 !important;
-    padding: 10px 0 !important;
-}
-
-.services-menu:hover .dropdown {
-    display: block !important;
-    animation: slideDown 0.3s ease !important;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.services-menu .dropdown li {
-    list-style: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.services-menu .dropdown a {
-    display: block !important;
-    padding: 10px 20px !important;
-    color: #262626 !important;
-    text-decoration: none !important;
-    font-size: 14px !important;
-    transition: all 0.3s ease !important;
-    border-left: 3px solid transparent !important;
-}
-
-.services-menu .dropdown a:hover {
-    background: #f5f5f5 !important;
-    border-left-color: #500106 !important;
-    padding-left: 25px !important;
-}
-
-/* Стрелочка для услуг */
-.services-btn::after {
-    content: '▼' !important;
-    font-size: 10px !important;
-    margin-left: 5px !important;
-    transition: transform 0.3s ease !important;
-}
-
-.services-menu:hover .services-btn::after {
-    transform: rotate(180deg) !important;
-}
-
-/* Мобильное подменю */
-@media (max-width: 768px) {
-    .services-menu .dropdown {
-        position: static !important;
-        box-shadow: none !important;
-        border: none !important;
-        padding-left: 20px !important;
-        background: #f9f9f9 !important;
-    }
-    
-    .services-menu .dropdown a {
-        padding: 8px 15px !important;
-        font-size: 13px !important;
     }
 }
