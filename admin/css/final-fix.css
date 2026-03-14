@@ -267,3 +267,17 @@
     border-left-color: #500106;
     padding-left: 25px;
 }
+
+/* Убираем стрелку из мобильного меню для услуг */
+.mobile-nav .has-submenu > a::after {
+    content: '' !important;
+    display: none !important;
+}
+
+/* Оставляем только одну стрелку в services-btn */
+.services-btn::after {
+    content: '▾' !important;
+    font-size: 12px !important;
+    margin-left: 5px !important;
+    display: inline !important;
+}
