@@ -197,3 +197,16 @@
         font-size: 16px;
     }
 }
+
+/* Скрываем большую SVG иконку телефона */
+.contact-btn svg,
+.contact-btn .svg {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.contact-btn {
+    font-size: 14px !important;
+    padding: 8px 15px !important;
+}
